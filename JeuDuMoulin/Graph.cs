@@ -54,7 +54,6 @@ namespace JeuDuMoulin
 
 	public class Graph
 	{
-		public Node SelectedNode { get; set; }
 		public HashSet<Node> Nodes { get; private set; }
 		public Graph()
 		{
@@ -175,6 +174,20 @@ namespace JeuDuMoulin
 			Point guess = new Point((int)Math.Round(((toTest.X - origin.X) / (double)coef)), (int)Math.Round((toTest.Y - origin.Y) / (double)coef));
 			var correspondingNode = Nodes.Where(x => x.RelativeLocation == guess).FirstOrDefault();
 			return correspondingNode;
+		}
+
+		public bool MovePawn(Node a, Node b, Occupation player = Occupation.Player1)
+		{
+			if (a.Neighbors.Contains(b))
+			{
+				a.Occupation = Occupation.None;
+				b.Occupation = player;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 	}
