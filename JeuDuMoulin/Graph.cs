@@ -177,58 +177,5 @@ namespace JeuDuMoulin
 			return correspondingNode;
 		}
 
-		/// <summary>
-		/// try to detect the next linked node given a base node and a drag direction.
-		/// the direction is defined by the first node location and the clicked/dragged location.
-		/// </summary>
-		/// <param name="firstNode"></param>
-		/// <param name="nextToTest"></param>
-		/// <param name="origin"></param>
-		/// <param name="coef"></param>
-		/// <returns></returns>
-		public Node MapDirectionToNextNode(Node firstNode, Point nextToTest, Point origin, int coef)
-		{
-			Point firstNodeLocation = firstNode.GetAbsoluteLocation(origin, coef);
-			Direction direction = FindDirection(firstNodeLocation, nextToTest);
-			return firstNode.Neighbors.First(x => direction == FindDirection(firstNode.RelativeLocation, x.RelativeLocation));
-		}
-
-		internal static Direction FindDirection(Point a, Point b)
-		{
-			//http://upload.wikimedia.org/wikipedia/commons/4/4c/Unit_circle_angles_color.svg
-			Point orthB = new Point(b.X - a.X, b.Y - a.Y);
-			double angle = Math.Atan2(orthB.Y, orthB.X);
-			if (angle <= Math.PI / 4f || angle > 7f * Math.PI / 4f)
-			{
-				return Direction.Right;
-			}
-			if (angle > Math.PI / 4f && angle <= 3f * Math.PI / 4f)
-			{
-				return Direction.Top;
-			}
-			if (angle > 3f * Math.PI / 4f && angle <= 5f * Math.PI / 4f)
-			{
-				return Direction.Left;
-			}
-			if (angle > 5f * Math.PI / 4f && angle <= 7f * Math.PI / 4f)
-			{
-				return Direction.Bottom;
-			}
-			throw new IFuckedUpMyIntervalsException();
-		}
-
-		internal enum Direction
-		{
-			Left,
-			Right,
-			Top,
-			Bottom,
-		}
-
-		public class IFuckedUpMyIntervalsException : Exception
-		{
-			public IFuckedUpMyIntervalsException(Exception innerException = null) : base("Sorry :3", innerException) { }
-		}
-
 	}
 }
