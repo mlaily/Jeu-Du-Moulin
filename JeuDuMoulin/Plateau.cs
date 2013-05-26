@@ -15,6 +15,8 @@ namespace JeuDuMoulin
 		Point Origin;
 		const int SpacingCoef = 50;
 		Graph graph = new Graph();
+		Node SelectedNode;
+
 		const int PieRadius = 10;
 		Color background = Color.White;
 		Pen defaultPen = new Pen(Color.Black, 2);
@@ -31,7 +33,7 @@ namespace JeuDuMoulin
 			{
 				node.Occupation = (Occupation)r.Next(3);
 			}
-			graph.SelectedNode = graph.Nodes.ElementAt(3);
+			SelectedNode = graph.Nodes.ElementAt(3);
 		}
 
 		private void Plateau_Paint(object sender, PaintEventArgs e)
@@ -63,7 +65,7 @@ namespace JeuDuMoulin
 					default:
 						break;
 				}
-				if (node.Occupation != Occupation.None && graph.SelectedNode == node)
+				if (node.Occupation != Occupation.None && SelectedNode == node)
 				{
 					g.DrawEllipse(selectionPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
 				}
@@ -82,22 +84,40 @@ namespace JeuDuMoulin
 			if (clickedNode != null)
 			{
 #if DEBUG
-				Console.WriteLine(clickedNode.Id);
+				Console.WriteLine("clicked on " + clickedNode.Id.ToString());
 #endif
-				if (clickedNode.Occupation != Occupation.None)
+				if (e.Button == System.Windows.Forms.MouseButtons.Left)
 				{
-					if (graph.SelectedNode != clickedNode)
+					//normal selection
+					if (clickedNode.Occupation != Occupation.None)
 					{
-						//todo: check if the current pawn belongs to the appropriate player
-						graph.SelectedNode = clickedNode;
-						this.Invalidate();
+						if (SelectedNode != clickedNode)
+						{
+							//todo: check if the current pawn belongs to the appropriate player...
+							SelectedNode = clickedNode;
+							this.Invalidate();
+						}
+					}
+				}
+				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
+				{
+					//move the pawn
+					if (SelectedNode != null &&
+						clickedNode.Occupation == Occupation.None &&
+						SelectedNode != clickedNode)
+					{
+						if (graph.MovePawn(SelectedNode, clickedNode, SelectedNode.Occupation))
+						{
+							SelectedNode = clickedNode;
+							this.Invalidate();
+						}
 					}
 				}
 			}
 			else
 			{
 #if DEBUG
-				Console.WriteLine("0");
+				Console.WriteLine("clicked on nothing");
 #endif
 			}
 		}
