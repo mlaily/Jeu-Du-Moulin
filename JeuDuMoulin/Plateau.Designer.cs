@@ -34,9 +34,12 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.DoubleBuffered = true;
 			this.Name = "Plateau";
 			this.Size = new System.Drawing.Size(480, 387);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plateau_Paint);
+			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseDown);
+			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseUp);
 			this.ResumeLayout(false);
 
 		}
