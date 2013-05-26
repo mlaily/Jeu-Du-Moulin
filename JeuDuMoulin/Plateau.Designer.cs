@@ -38,8 +38,7 @@
 			this.Name = "Plateau";
 			this.Size = new System.Drawing.Size(480, 387);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plateau_Paint);
-			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseDown);
-			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseUp);
+			this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseClick);
 			this.ResumeLayout(false);
 
 		}
