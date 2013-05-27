@@ -9,10 +9,9 @@ namespace JeuDuMoulin
 	public interface IPlayer
 	{
 		Game Game { get; }
-		int PawnCount { get; set; }
 		void Initialize(Game game);
 
-		void Play(Lock l);
+		void PlacePawn(LockAndReturn<PlacePawnReturn> l);
 
 	}
 

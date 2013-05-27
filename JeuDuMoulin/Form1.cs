@@ -29,7 +29,7 @@ namespace JeuDuMoulin
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			Lock.ReleaseAll();
+			LockAndReturn < IReturnValue>.ReleaseAll();
 			if (game != null)
 			{
 				game.Abort();
