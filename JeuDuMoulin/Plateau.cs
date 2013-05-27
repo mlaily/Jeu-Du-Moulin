@@ -46,12 +46,12 @@ namespace JeuDuMoulin
 			this.Invalidate();
 
 			//graphic debug
-			Random r = new Random(42);
-			foreach (var node in Game.Board.Nodes)
-			{
-				node.Occupation = (Occupation)r.Next(3);
-			}
-			SelectedNode = Game.Board.Nodes.ElementAt(3);
+			//Random r = new Random(42);
+			//foreach (var node in Game.Board.Nodes)
+			//{
+			//    node.Occupation = (Occupation)r.Next(3);
+			//}
+			//SelectedNode = Game.Board.Nodes.ElementAt(3);
 		}
 
 		public Plateau()
@@ -75,11 +75,11 @@ namespace JeuDuMoulin
 		private void DrawPlateau(Graphics g)
 		{
 			g.Clear(background);
-			foreach (var segment in Game.Board.GetAllEdges(Origin, SpacingCoef))
+			foreach (var segment in GetAllEdges(Game.Board, Origin, SpacingCoef))
 			{
 				g.DrawLine(defaultPen, segment.Item1, segment.Item2);
 			}
-			foreach (var node in Game.Board.Nodes)
+			foreach (var node in Game.Board)
 			{
 				Point nodeCenter = node.GetAbsoluteLocation(Origin, SpacingCoef);
 				switch (node.Occupation)
@@ -109,9 +109,38 @@ namespace JeuDuMoulin
 			//g.FillPie(new SolidBrush(Color.Gray), Origin.X - PieRadius, Origin.Y - PieRadius, PieRadius * 2, PieRadius * 2, 0, 360);
 		}
 
+		private IEnumerable<Tuple<Point, Point>> GetAllEdges(IEnumerable<Node> nodes, Point origin, int coef)
+		{
+			var result = new HashSet<Tuple<Point, Point>>();
+			//TODO: change algorithm to avoid returning a segment more than once
+			foreach (var node in nodes)
+			{
+				foreach (var segment in node.GetAbsoluteEdges(origin, coef))
+				{
+					result.Add(segment);
+				}
+			}
+			return result;
+		}
+
+		/// <param name="toTest">mouse location</param>
+		/// <returns>a node, or null</returns>
+		private Node MapPointToNode(IEnumerable<Node> nodes, Point toTest, Point origin, int coef)
+		{
+			//absX = originX + pointX * coef
+			//(absX - originX)/coef = pointX
+			Point guess = new Point((int)Math.Round(((toTest.X - origin.X) / (double)coef)), (int)Math.Round((toTest.Y - origin.Y) / (double)coef));
+			var correspondingNode = nodes.Where(x => x.RelativeLocation == guess).FirstOrDefault();
+			return correspondingNode;
+		}
+
 		private void Plateau_MouseClick(object sender, MouseEventArgs e)
 		{
-			var clickedNode = Game.Board.MapPointToNode(e.Location, Origin, SpacingCoef);
+			if (!Game.TurnHandler.IsMyTurn(currentToken))
+			{
+				return;
+			}
+			var clickedNode = MapPointToNode(Game.Board, e.Location, Origin, SpacingCoef);
 			if (clickedNode != null)
 			{
 #if DEBUG
@@ -144,12 +173,12 @@ namespace JeuDuMoulin
 						clickedNode.Occupation == Occupation.None &&
 						SelectedNode != clickedNode)
 					{
-						if (Game.Board.MovePawn(SelectedNode, clickedNode, SelectedNode.Occupation))
-						{
-							SelectedNode = clickedNode;
-							this.Invalidate();
-							OnGraphicRefresh();
-						}
+						//if (Game.MovePawn(SelectedNode, clickedNode, SelectedNode.Occupation))
+						//{
+						//    SelectedNode = clickedNode;
+						//    this.Invalidate();
+						//    OnGraphicRefresh();
+						//}
 					}
 				}
 			}

@@ -10,7 +10,8 @@ namespace JeuDuMoulin
 	{
 		private bool cancelAll = false;
 
-		public Graph Board { get; private set; }
+		public HashSet<Node> Board { get; private set; }
+
 		public int Turn { get; private set; }
 		public Phase Phase { get; private set; }
 		public IPlayer Player1 { get; private set; }
@@ -20,7 +21,7 @@ namespace JeuDuMoulin
 		public Game(IPlayer player1, IPlayer player2)
 		{
 			TurnHandler = new TurnHandler();
-			Board = new Graph();
+			Board = Graph.CreateGraph();
 			Player1 = player1;
 			Player2 = player2;
 			Player1.Initialize(this);
@@ -35,6 +36,20 @@ namespace JeuDuMoulin
 			cancelAll = true;
 		}
 
+		//public bool MovePawn(Node a, Node b, Occupation player = Occupation.Player1)
+		//{
+		//    if (a.Neighbors.Contains(b))
+		//    {
+		//        a.Occupation = Occupation.None;
+		//        b.Occupation = player;
+		//        return true;
+		//    }
+		//    else
+		//    {
+		//        return false;
+		//    }
+		//}
+
 		public void Start()
 		{
 			System.Threading.Thread t = new Thread(GameLoop);
@@ -46,7 +61,7 @@ namespace JeuDuMoulin
 		{
 			Phase = JeuDuMoulin.Phase.First;
 			Turn = 1;
-			while (!cancelAll/* && Player1.PawnCount < 9 && Player2.PawnCount < 9*/)
+			while (!cancelAll /*&& Player1.PawnCount < 9 && Player2.PawnCount < 9*/)
 			{
 				Player1.PlacePawn(TurnHandler.NewTurn());
 				TurnHandler.WaitForPlayer();
@@ -78,6 +93,11 @@ namespace JeuDuMoulin
 		public Guid NewTurn()
 		{
 			return currentToken = Guid.NewGuid();
+		}
+
+		public bool IsMyTurn(Guid token)
+		{
+			return currentToken == token;
 		}
 
 		public void EndTurn(Guid token)
