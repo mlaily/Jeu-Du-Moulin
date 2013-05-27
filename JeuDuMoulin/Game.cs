@@ -23,8 +23,6 @@ namespace JeuDuMoulin
 			Player2 = player2;
 			Player1.Initialize(this);
 			Player2.Initialize(this);
-			Phase = JeuDuMoulin.Phase.First;
-			Turn = 1;
 		}
 
 		/// <summary>
@@ -44,20 +42,51 @@ namespace JeuDuMoulin
 
 		private void GameLoop()
 		{
-			while (!cancelAll && Player1.PawnCount < 9 && Player2.PawnCount < 9)
+			Phase = JeuDuMoulin.Phase.First;
+			Turn = 1;
+			while (!cancelAll/* && Player1.PawnCount < 9 && Player2.PawnCount < 9*/)
 			{
-				using (var l = new Lock("Waiting for Player 1...", "Player 1 ended their turn!"))
-				{
-					Player1.Play(l);
-				}
-				using (var l = new Lock("Waiting for Player 2...", "Player 2 ended their turn!"))
-				{
-					Player2.Play(l);
-				}
+				var l = new LockAndReturn<PlacePawnReturn>("Waiting for Player 1...", "Player 1 ended their turn!");
+				Player1.PlacePawn(l);
+				l.WaitFor();
+				//using (var l = new LockAndReturn<IReturnValue>("Waiting for Player 2...", "Player 2 ended their turn!"))
+				//{
+				//    Player2.PlacePawn(l);
+				//}
 			}
 			Phase = JeuDuMoulin.Phase.Second;
 		}
 
+	}
+
+	public class PlacePawnReturn : IReturnValue
+	{
+
+	}
+
+	public class GameToken
+	{
+		private ManualResetEvent m = new ManualResetEvent(false);
+		public PlacePawn PlacePawn { get; private set; }
+		public GameToken()
+		{
+			this.PlacePawn = new PlacePawn();
+		}
+
+		public void SetResponse()
+		{
+			m.Set();
+		}
+
+		public void WaitForResponse()
+		{
+			m.WaitOne();
+		}
+
+	}
+	public class PlacePawn
+	{
+		public Node Placement { get; set; }
 	}
 
 	public enum Phase

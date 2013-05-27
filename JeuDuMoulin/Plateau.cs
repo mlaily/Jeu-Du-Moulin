@@ -16,7 +16,7 @@ namespace JeuDuMoulin
 		public Game Game { get; private set; }
 		public int PawnCount { get; set; }
 
-		private Lock currentLock = new Lock(); //avoid NRE
+		private LockAndReturn<PlacePawnReturn> currentLock = new LockAndReturn<PlacePawnReturn>(); //avoid NRE
 
 		#region Graphic representation
 		Point Origin;
@@ -144,7 +144,8 @@ namespace JeuDuMoulin
 							SelectedNode = clickedNode;
 							this.Invalidate();
 							OnGraphicRefresh();
-							currentLock.Release();
+							//TODO change to appropriate return value
+							currentLock.Release(new PlacePawnReturn());
 						}
 					}
 				}
@@ -162,7 +163,7 @@ namespace JeuDuMoulin
 			Origin = new Point(this.Width / 2, this.Height / 2);
 		}
 
-		public void Play(Lock l)
+		public void PlacePawn(LockAndReturn<PlacePawnReturn> l)
 		{
 			//start the turn for this player
 			currentLock = l;
