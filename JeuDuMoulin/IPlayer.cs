@@ -13,6 +13,7 @@ namespace JeuDuMoulin
 		void Initialize(Game game);
 
 		void PlacePawn(Guid token);
+		void RemoveOpponentPawn(Guid token);
 
 		string ToString();
 

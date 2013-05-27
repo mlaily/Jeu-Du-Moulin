@@ -17,6 +17,8 @@ namespace JeuDuMoulin
 		public Game.PlayerControl Control { get; private set; }
 		private Guid currentToken;
 
+		private CalledFunction currentAction = CalledFunction.None;
+
 		#region Graphic representation
 		Point Origin;
 		const int SpacingCoef = 65;
@@ -76,6 +78,7 @@ namespace JeuDuMoulin
 		private void DrawPlateau(Graphics g)
 		{
 			g.Clear(background);
+			g.DrawString(currentAction.ToString(), new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(Color.Blue), 10, 10);
 			foreach (var segment in GetAllEdges(Game.Board, Origin, SpacingCoef))
 			{
 				g.DrawLine(defaultPen, segment.Item1, segment.Item2);
@@ -154,20 +157,32 @@ namespace JeuDuMoulin
 					//normal selection
 					if (clickedNode.Owner != null)
 					{
-						if (SelectedNode != clickedNode)
+						if (currentAction == CalledFunction.RemoveOpponentPawn)
 						{
-							//todo: check if the current pawn belongs to the appropriate player...
-							SelectedNode = clickedNode;
+							if (clickedNode.Owner != null && clickedNode.Owner != this)
+							{
+								Control.RemoveOpponentPawn(currentToken, clickedNode);
+								currentAction = CalledFunction.None;
+								this.Invalidate();
+								OnGraphicRefresh();
+							}
+						}
+						//if (SelectedNode != clickedNode)
+						//{
+						//    //todo: check if the current pawn belongs to the appropriate player...
+						//    SelectedNode = clickedNode;
+						//    this.Invalidate();
+						//}
+					}
+					else //empty node
+					{
+						if (currentAction == CalledFunction.PlacePawn)
+						{
+							Control.PlacePawn(currentToken, clickedNode);
+							currentAction = CalledFunction.None;
 							this.Invalidate();
 							OnGraphicRefresh();
 						}
-					}
-					else
-					{
-						//TODO
-						Control.PlacePawn(currentToken, clickedNode, null);
-						this.Invalidate();
-						OnGraphicRefresh();
 					}
 				}
 				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
@@ -201,14 +216,30 @@ namespace JeuDuMoulin
 
 		public void PlacePawn(Guid token)
 		{
-			//start the turn for this player
+			currentAction = CalledFunction.PlacePawn;
 			this.currentToken = token;
+			this.Invalidate();
+		}
+
+		public void RemoveOpponentPawn(Guid token)
+		{
+			currentAction = CalledFunction.RemoveOpponentPawn;
+			this.currentToken = token;
+			this.Invalidate();
 		}
 
 		public override string ToString()
 		{
 			return Game.Player1 == this ? "Player1" : "Player2";
 		}
+
+		private enum CalledFunction
+		{
+			None,
+			PlacePawn,
+			RemoveOpponentPawn,
+		}
+
 	}
 
 }
