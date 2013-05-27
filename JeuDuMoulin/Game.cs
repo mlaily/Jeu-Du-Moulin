@@ -61,19 +61,76 @@ namespace JeuDuMoulin
 		{
 			Phase = JeuDuMoulin.Phase.First;
 			Turn = 1;
-			while (!cancelAll /*&& Player1.PawnCount < 9 && Player2.PawnCount < 9*/)
+			while (!cancelAll && (Player1.Control.PawnsToPlace > 0 || Player2.Control.PawnsToPlace > 0))
 			{
 				Player1.PlacePawn(TurnHandler.NewTurn());
 				TurnHandler.WaitForPlayer();
-				//access data
-				Console.WriteLine("Player1 played {0}", TurnHandler.PlacePawn.Placement.Id);
 
 				Player2.PlacePawn(TurnHandler.NewTurn());
 				TurnHandler.WaitForPlayer();
-				//access data
-				Console.WriteLine("Player2 played {0}", TurnHandler.PlacePawn.Placement.Id);
 			}
 			Phase = JeuDuMoulin.Phase.Second;
+		}
+
+		public class PlayerControl
+		{
+			//convenient reference
+			private Game game;
+
+			public int PawnsToPlace { get; private set; }
+			public int PawnCount { get; private set; }
+			public IPlayer Player { get; private set; }
+
+			public PlayerControl(IPlayer player)
+			{
+				Player = player;
+				game = player.Game;
+				PawnsToPlace = 9;
+				PawnCount = 0;
+			}
+
+			/// <summary>
+			/// place a pawn and end the turn.
+			/// </summary>
+			/// <param name="token"></param>
+			/// <param name="node"></param>
+			/// <param name="opponentPawnToRemove">si le joueur a fait un moulin, il doit demander ici le pion adverse qu'il veut enlever.</param>
+			public void PlacePawn(Guid token, Node node, Node opponentPawnToRemove = null)
+			{
+				if (!game.TurnHandler.IsMyTurn(token))
+				{
+					throw new NotYourTurnException();
+				}
+
+				if (node.Owner != null)
+				{
+					throw new GameRuleBrokenException("There already is a pawn there!");
+				}
+
+				bool isCreatingAMill = Graph.IsCreatingAMill(game.Board, node, Player);
+
+				//toutes les conditions sont remplies
+
+				node.Owner = Player;
+				PawnsToPlace--;
+				PawnCount++;
+
+				if (isCreatingAMill)
+				{
+					if (opponentPawnToRemove == null || opponentPawnToRemove.Owner == null || opponentPawnToRemove.Owner == Player)
+					{
+						throw new ArgumentException("You formed a mill, you must remove a pawn from your opponent.", "opponentPawnToRemove");
+					}
+					//ok
+					opponentPawnToRemove.Owner = null;
+				}
+
+#if DEBUG
+				Console.WriteLine("{0} placed a pawn on {1}", this.Player, node.Id);
+				if (isCreatingAMill) Console.WriteLine("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
+#endif
+				game.TurnHandler.EndTurn(token);
+			}
 		}
 
 	}
@@ -82,13 +139,6 @@ namespace JeuDuMoulin
 	{
 		private ManualResetEvent m = new ManualResetEvent(false);
 		private Guid currentToken;
-
-		public PlacePawn PlacePawn { get; private set; }
-
-		public TurnHandler()
-		{
-			this.PlacePawn = new PlacePawn();
-		}
 
 		public Guid NewTurn()
 		{
@@ -104,11 +154,12 @@ namespace JeuDuMoulin
 		{
 			if (token != currentToken)
 			{
-				throw new GameRuleBrokenException("Not your turn! (token does not match)");
+				throw new NotYourTurnException();
 			}
 			else
 			{
 				m.Set();
+				currentToken = Guid.Empty;
 			}
 		}
 
@@ -118,11 +169,6 @@ namespace JeuDuMoulin
 			m.WaitOne();
 		}
 
-	}
-
-	public class PlacePawn
-	{
-		public Node Placement { get; set; }
 	}
 
 	public enum Phase
@@ -140,5 +186,11 @@ namespace JeuDuMoulin
 	public class GameRuleBrokenException : Exception
 	{
 		public GameRuleBrokenException(string message, Exception inner = null) : base(message, inner) { }
+	}
+
+
+	public class NotYourTurnException : Exception
+	{
+		public NotYourTurnException(Exception inner = null) : base("Not your turn! (token does not match)", inner) { }
 	}
 }

@@ -6,18 +6,12 @@ using System.Drawing;
 
 namespace JeuDuMoulin
 {
-	public enum Occupation
-	{
-		None,
-		Player1,
-		Player2,
-	}
 
 	public class Node
 	{
 		public int Id { get; private set; }
 		public HashSet<Node> Neighbors { get; private set; }
-		public Occupation Occupation { get; set; }
+		public IPlayer Owner { get; set; }
 		/// <summary>
 		/// Graphical representation
 		/// </summary>
@@ -54,6 +48,12 @@ namespace JeuDuMoulin
 
 	public static class Graph
 	{
+
+		public static bool IsCreatingAMill(IEnumerable<Node> nodes, Node newPlace, IPlayer checkForPlayer)
+		{
+			//TODO
+			return false;
+		}
 
 		public static HashSet<Node> CreateGraph()
 		{
