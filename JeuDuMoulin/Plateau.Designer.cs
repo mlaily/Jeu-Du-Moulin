@@ -37,6 +37,7 @@
 			this.DoubleBuffered = true;
 			this.Name = "Plateau";
 			this.Size = new System.Drawing.Size(480, 387);
+			this.Load += new System.EventHandler(this.Plateau_Load);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plateau_Paint);
 			this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Plateau_MouseClick);
 			this.ResumeLayout(false);
