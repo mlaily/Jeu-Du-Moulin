@@ -55,7 +55,7 @@ namespace JeuDuMoulin
 			if (resultX == 3)
 			{
 #if DEBUG
-				Console.WriteLine("Moulin sur X pour {0}", checkForPlayer);
+				Console.WriteLine("Mill on X for {0}", checkForPlayer);
 #endif
 				return true;
 			}
@@ -63,7 +63,7 @@ namespace JeuDuMoulin
 			if (resultY == 3)
 			{
 #if DEBUG
-				Console.WriteLine("Moulin sur Y pour {0}", checkForPlayer);
+				Console.WriteLine("Mill on Y for {0}", checkForPlayer);
 #endif
 				return true;
 			}
