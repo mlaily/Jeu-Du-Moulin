@@ -84,7 +84,9 @@ namespace JeuDuMoulin
 			{
 				Point nodeCenter = node.GetAbsoluteLocation(Origin, SpacingCoef);
 #if DEBUG
-				g.DrawString(node.Id.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Red), new Point(nodeCenter.X + PieRadius, nodeCenter.Y + PieRadius));
+				//g.DrawString(string.Format("{0}: {1},{2}", node.Id, node.RelativeLocation.X, node.RelativeLocation.Y),
+				//    new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Red), nodeCenter/* new Point(nodeCenter.X + PieRadius, nodeCenter.Y + PieRadius)*/);
+				g.DrawString(node.Id.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Red), new Point(nodeCenter.X + PieRadius / 2, nodeCenter.Y + PieRadius / 2));
 #endif
 				if (node.Owner == null)
 				{

@@ -49,10 +49,70 @@ namespace JeuDuMoulin
 	public static class Graph
 	{
 
-		public static bool IsCreatingAMill(IEnumerable<Node> nodes, Node newPlace, IPlayer checkForPlayer)
+		public static bool IsCreatingAMill(Node newPlace, IPlayer checkForPlayer)
 		{
-			//TODO
+			int resultX = CheckMill(newPlace, true, checkForPlayer, newPlace);
+			if (resultX == 3)
+			{
+#if DEBUG
+				Console.WriteLine("Moulin sur X pour {0}", checkForPlayer);
+#endif
+				return true;
+			}
+			int resultY = CheckMill(newPlace, false, checkForPlayer, newPlace);
+			if (resultY == 3)
+			{
+#if DEBUG
+				Console.WriteLine("Moulin sur Y pour {0}", checkForPlayer);
+#endif
+				return true;
+			}
 			return false;
+		}
+		/// <summary>
+		/// retourne 3 si un moulin va être créé.
+		/// </summary>
+		private static int CheckMill(Node currentNode, bool checkAbscisse, IPlayer player, Node newPlace, Node previousNode = null)
+		{
+			if (currentNode.Owner != player && currentNode != newPlace)
+			{
+				return 0;
+			}
+			int compteur = 0;
+			int currentValue = 0;
+			int previousValue = 0;
+			switch (checkAbscisse)
+			{
+				case true:
+					currentValue = currentNode.RelativeLocation.X;
+					previousValue = previousNode == null ? 42 : previousNode.RelativeLocation.X;
+					break;
+				case false:
+					currentValue = currentNode.RelativeLocation.Y;
+					previousValue = previousNode == null ? 42 : previousNode.RelativeLocation.Y;
+					break;
+			}
+			if (previousNode == null)
+			{
+				//first loop
+				compteur++;
+			}
+			else
+			{
+				if (currentValue == previousValue)
+				{
+					compteur++;
+				}
+				else
+				{
+					return compteur;
+				}
+			}
+			foreach (var node in currentNode.Neighbors.Where(x => x != previousNode && x.Owner == player))
+			{
+				compteur += CheckMill(node, checkAbscisse, player, newPlace, currentNode);
+			}
+			return compteur;
 		}
 
 		public static HashSet<Node> CreateGraph()

@@ -107,7 +107,7 @@ namespace JeuDuMoulin
 					throw new GameRuleBrokenException("There already is a pawn there!");
 				}
 
-				bool isCreatingAMill = Graph.IsCreatingAMill(game.Board, node, Player);
+				bool isCreatingAMill = Graph.IsCreatingAMill(node, Player);
 
 				//toutes les conditions sont remplies
 
