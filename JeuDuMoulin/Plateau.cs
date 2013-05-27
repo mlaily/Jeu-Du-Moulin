@@ -14,7 +14,7 @@ namespace JeuDuMoulin
 	{
 
 		public Game Game { get; private set; }
-		public int PawnCount { get; set; }
+		public Game.PlayerControl Control { get; private set; }
 		private Guid currentToken;
 
 		#region Graphic representation
@@ -43,6 +43,7 @@ namespace JeuDuMoulin
 		public void Initialize(Game game)
 		{
 			this.Game = game;
+			this.Control = new Game.PlayerControl(this);
 			this.Invalidate();
 
 			//graphic debug
@@ -82,27 +83,27 @@ namespace JeuDuMoulin
 			foreach (var node in Game.Board)
 			{
 				Point nodeCenter = node.GetAbsoluteLocation(Origin, SpacingCoef);
-				switch (node.Occupation)
+#if DEBUG
+				g.DrawString(node.Id.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Red), new Point(nodeCenter.X + PieRadius, nodeCenter.Y + PieRadius));
+#endif
+				if (node.Owner == null)
 				{
-					case Occupation.Player1:
-						g.FillEllipse(player1Brush, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
-						g.DrawEllipse(defaultPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
-						break;
-					case Occupation.Player2:
-						g.FillEllipse(player2Brush, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
-						g.DrawEllipse(defaultPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
-						break;
-					case Occupation.None:
-					default:
-						break;
+					continue;
 				}
-				if (node.Occupation != Occupation.None && SelectedNode == node)
+				if (node.Owner == Game.Player1)
+				{
+					g.FillEllipse(player1Brush, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
+					g.DrawEllipse(defaultPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
+				}
+				else if (node.Owner == Game.Player2)
+				{
+					g.FillEllipse(player2Brush, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
+					g.DrawEllipse(defaultPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
+				}
+				if (SelectedNode == node)
 				{
 					g.DrawEllipse(selectionPen, nodeCenter.X - PieRadius, nodeCenter.Y - PieRadius, PieRadius * 2, PieRadius * 2);
 				}
-#if DEBUG
-				g.DrawString(node.Id.ToString(), new Font(FontFamily.GenericSansSerif, 10), new SolidBrush(Color.Red), nodeCenter);
-#endif
 			}
 
 			//origin
@@ -149,7 +150,7 @@ namespace JeuDuMoulin
 				if (e.Button == System.Windows.Forms.MouseButtons.Left)
 				{
 					//normal selection
-					if (clickedNode.Occupation != Occupation.None)
+					if (clickedNode.Owner != null)
 					{
 						if (SelectedNode != clickedNode)
 						{
@@ -161,16 +162,17 @@ namespace JeuDuMoulin
 					}
 					else
 					{
-						//TODO change to appropriate return value
-						Game.TurnHandler.PlacePawn.Placement = clickedNode;
-						this.Game.TurnHandler.EndTurn(currentToken);
+						//TODO
+						Control.PlacePawn(currentToken, clickedNode, null);
+						this.Invalidate();
+						OnGraphicRefresh();
 					}
 				}
 				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
 				{
 					//move the pawn
 					if (SelectedNode != null &&
-						clickedNode.Occupation == Occupation.None &&
+						clickedNode.Owner == null &&
 						SelectedNode != clickedNode)
 					{
 						//if (Game.MovePawn(SelectedNode, clickedNode, SelectedNode.Occupation))
@@ -201,6 +203,10 @@ namespace JeuDuMoulin
 			this.currentToken = token;
 		}
 
+		public override string ToString()
+		{
+			return Game.Player1 == this ? "Player1" : "Player2";
+		}
 	}
 
 }

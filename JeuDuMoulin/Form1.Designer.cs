@@ -72,7 +72,6 @@
 			this.plateau2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.plateau2.Location = new System.Drawing.Point(700, 42);
 			this.plateau2.Name = "plateau2";
-			this.plateau2.PawnCount = 0;
 			this.plateau2.Size = new System.Drawing.Size(500, 500);
 			this.plateau2.TabIndex = 2;
 			// 
@@ -80,7 +79,6 @@
 			// 
 			this.plateau1.Location = new System.Drawing.Point(12, 42);
 			this.plateau1.Name = "plateau1";
-			this.plateau1.PawnCount = 0;
 			this.plateau1.Size = new System.Drawing.Size(500, 500);
 			this.plateau1.TabIndex = 0;
 			// 

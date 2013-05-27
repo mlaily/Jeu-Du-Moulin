@@ -9,9 +9,12 @@ namespace JeuDuMoulin
 	public interface IPlayer
 	{
 		Game Game { get; }
+		Game.PlayerControl Control { get; }
 		void Initialize(Game game);
 
 		void PlacePawn(Guid token);
+
+		string ToString();
 
 	}
 
