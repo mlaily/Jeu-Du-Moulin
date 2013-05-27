@@ -17,7 +17,7 @@ namespace JeuDuMoulin
 		public Form1()
 		{
 			InitializeComponent();
-			plateau1.GraphicRefresh += (o,e) => plateau2.Invalidate();
+			plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
 			plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
 		}
 
@@ -29,11 +29,7 @@ namespace JeuDuMoulin
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			LockAndReturn < IReturnValue>.ReleaseAll();
-			if (game != null)
-			{
-				game.Abort();
-			}
+			System.Diagnostics.Process.GetCurrentProcess().Kill();
 		}
 
 	}

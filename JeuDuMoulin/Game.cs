@@ -15,9 +15,11 @@ namespace JeuDuMoulin
 		public Phase Phase { get; private set; }
 		public IPlayer Player1 { get; private set; }
 		public IPlayer Player2 { get; private set; }
+		public TurnHandler TurnHandler { get; private set; }
 
 		public Game(IPlayer player1, IPlayer player2)
 		{
+			TurnHandler = new TurnHandler();
 			Board = new Graph();
 			Player1 = player1;
 			Player2 = player2;
@@ -46,44 +48,58 @@ namespace JeuDuMoulin
 			Turn = 1;
 			while (!cancelAll/* && Player1.PawnCount < 9 && Player2.PawnCount < 9*/)
 			{
-				var l = new LockAndReturn<PlacePawnReturn>("Waiting for Player 1...", "Player 1 ended their turn!");
-				Player1.PlacePawn(l);
-				l.WaitFor();
-				//using (var l = new LockAndReturn<IReturnValue>("Waiting for Player 2...", "Player 2 ended their turn!"))
-				//{
-				//    Player2.PlacePawn(l);
-				//}
+				Player1.PlacePawn(TurnHandler.NewTurn());
+				TurnHandler.WaitForPlayer();
+				//access data
+				Console.WriteLine("Player1 played {0}", TurnHandler.PlacePawn.Placement.Id);
+
+				Player2.PlacePawn(TurnHandler.NewTurn());
+				TurnHandler.WaitForPlayer();
+				//access data
+				Console.WriteLine("Player2 played {0}", TurnHandler.PlacePawn.Placement.Id);
 			}
 			Phase = JeuDuMoulin.Phase.Second;
 		}
 
 	}
 
-	public class PlacePawnReturn : IReturnValue
-	{
-
-	}
-
-	public class GameToken
+	public class TurnHandler
 	{
 		private ManualResetEvent m = new ManualResetEvent(false);
+		private Guid currentToken;
+
 		public PlacePawn PlacePawn { get; private set; }
-		public GameToken()
+
+		public TurnHandler()
 		{
 			this.PlacePawn = new PlacePawn();
 		}
 
-		public void SetResponse()
+		public Guid NewTurn()
 		{
-			m.Set();
+			return currentToken = Guid.NewGuid();
 		}
 
-		public void WaitForResponse()
+		public void EndTurn(Guid token)
 		{
+			if (token != currentToken)
+			{
+				throw new GameRuleBrokenException("Not your turn! (token does not match)");
+			}
+			else
+			{
+				m.Set();
+			}
+		}
+
+		public void WaitForPlayer()
+		{
+			m.Reset();
 			m.WaitOne();
 		}
 
 	}
+
 	public class PlacePawn
 	{
 		public Node Placement { get; set; }

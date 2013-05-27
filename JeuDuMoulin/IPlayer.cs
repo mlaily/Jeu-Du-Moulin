@@ -11,7 +11,7 @@ namespace JeuDuMoulin
 		Game Game { get; }
 		void Initialize(Game game);
 
-		void PlacePawn(LockAndReturn<PlacePawnReturn> l);
+		void PlacePawn(Guid token);
 
 	}
 
