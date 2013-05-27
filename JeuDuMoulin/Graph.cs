@@ -52,12 +52,12 @@ namespace JeuDuMoulin
 
 	}
 
-	public class Graph
+	public static class Graph
 	{
-		public HashSet<Node> Nodes { get; private set; }
-		public Graph()
+
+		public static HashSet<Node> CreateGraph()
 		{
-			this.Nodes = new HashSet<Node>();
+			var result = new HashSet<Node>();
 			//small rectangle
 			var node1 = new Node(1, -1, 1);
 			var node2 = new Node(2, 0, 1);
@@ -125,69 +125,32 @@ namespace JeuDuMoulin
 			node800.LinkTo(node80);
 			node80.LinkTo(node8);
 
-			Nodes.Add(node1);
-			Nodes.Add(node2);
-			Nodes.Add(node3);
-			Nodes.Add(node4);
-			Nodes.Add(node5);
-			Nodes.Add(node6);
-			Nodes.Add(node7);
-			Nodes.Add(node8);
-			Nodes.Add(node10);
-			Nodes.Add(node20);
-			Nodes.Add(node30);
-			Nodes.Add(node40);
-			Nodes.Add(node50);
-			Nodes.Add(node60);
-			Nodes.Add(node70);
-			Nodes.Add(node80);
-			Nodes.Add(node100);
-			Nodes.Add(node200);
-			Nodes.Add(node300);
-			Nodes.Add(node400);
-			Nodes.Add(node500);
-			Nodes.Add(node600);
-			Nodes.Add(node700);
-			Nodes.Add(node800);
-		}
+			result.Add(node1);
+			result.Add(node2);
+			result.Add(node3);
+			result.Add(node4);
+			result.Add(node5);
+			result.Add(node6);
+			result.Add(node7);
+			result.Add(node8);
+			result.Add(node10);
+			result.Add(node20);
+			result.Add(node30);
+			result.Add(node40);
+			result.Add(node50);
+			result.Add(node60);
+			result.Add(node70);
+			result.Add(node80);
+			result.Add(node100);
+			result.Add(node200);
+			result.Add(node300);
+			result.Add(node400);
+			result.Add(node500);
+			result.Add(node600);
+			result.Add(node700);
+			result.Add(node800);
 
-		public IEnumerable<Tuple<Point, Point>> GetAllEdges(Point origin, int coef)
-		{
-			var result = new HashSet<Tuple<Point, Point>>();
-			//TODO: change algorithm to avoid returning a segment more than once
-			foreach (var node in this.Nodes)
-			{
-				foreach (var segment in node.GetAbsoluteEdges(origin, coef))
-				{
-					result.Add(segment);
-				}
-			}
 			return result;
-		}
-
-		/// <param name="toTest">mouse location</param>
-		/// <returns>a node, or null</returns>
-		public Node MapPointToNode(Point toTest, Point origin, int coef)
-		{
-			//absX = originX + pointX * coef
-			//(absX - originX)/coef = pointX
-			Point guess = new Point((int)Math.Round(((toTest.X - origin.X) / (double)coef)), (int)Math.Round((toTest.Y - origin.Y) / (double)coef));
-			var correspondingNode = Nodes.Where(x => x.RelativeLocation == guess).FirstOrDefault();
-			return correspondingNode;
-		}
-
-		public bool MovePawn(Node a, Node b, Occupation player = Occupation.Player1)
-		{
-			if (a.Neighbors.Contains(b))
-			{
-				a.Occupation = Occupation.None;
-				b.Occupation = player;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
 		}
 
 	}
