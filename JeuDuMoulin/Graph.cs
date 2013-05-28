@@ -49,9 +49,11 @@ namespace JeuDuMoulin
 	public static class Graph
 	{
 
-		public static bool IsCreatingAMill(Node newPlace, IPlayer checkForPlayer)
+		/// <param name="oldPlace">if we are checking a moving pawn</param>
+		public static bool IsCreatingAMill(Node newPlace, IPlayer checkForPlayer, Node oldPlace = null)
 		{
-			int resultX = CheckMill(newPlace, true, checkForPlayer, newPlace);
+
+			int resultX = CheckMill(newPlace, true, checkForPlayer, newPlace, oldPlace);
 			if (resultX == 3)
 			{
 #if DEBUG
@@ -59,7 +61,7 @@ namespace JeuDuMoulin
 #endif
 				return true;
 			}
-			int resultY = CheckMill(newPlace, false, checkForPlayer, newPlace);
+			int resultY = CheckMill(newPlace, false, checkForPlayer, newPlace, oldPlace);
 			if (resultY == 3)
 			{
 #if DEBUG
@@ -72,7 +74,10 @@ namespace JeuDuMoulin
 		/// <summary>
 		/// retourne 3 si un moulin va être créé.
 		/// </summary>
-		private static int CheckMill(Node currentNode, bool checkAbscisse, IPlayer player, Node newPlace, Node previousNode = null)
+		/// <remarks>
+		/// cherche récursivement les noeuds voisins qui ont une valeur commune (soit x soit y suivant checkAbscisse)
+		/// </remarks>
+		private static int CheckMill(Node currentNode, bool checkAbscisse, IPlayer player, Node newPlace, Node oldPlace = null, Node previousNode = null)
 		{
 			if (currentNode.Owner != player && currentNode != newPlace)
 			{
@@ -108,9 +113,9 @@ namespace JeuDuMoulin
 					return compteur;
 				}
 			}
-			foreach (var node in currentNode.Neighbors.Where(x => x != previousNode && x.Owner == player))
+			foreach (var node in currentNode.Neighbors.Where(x => x != previousNode && x != oldPlace && x.Owner == player))
 			{
-				compteur += CheckMill(node, checkAbscisse, player, newPlace, currentNode);
+				compteur += CheckMill(node, checkAbscisse, player, newPlace, oldPlace, currentNode);
 			}
 			return compteur;
 		}

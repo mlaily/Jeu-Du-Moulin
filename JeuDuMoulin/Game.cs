@@ -36,20 +36,6 @@ namespace JeuDuMoulin
 			cancelAll = true;
 		}
 
-		//public bool MovePawn(Node a, Node b, Occupation player = Occupation.Player1)
-		//{
-		//    if (a.Neighbors.Contains(b))
-		//    {
-		//        a.Occupation = Occupation.None;
-		//        b.Occupation = player;
-		//        return true;
-		//    }
-		//    else
-		//    {
-		//        return false;
-		//    }
-		//}
-
 		public void Start()
 		{
 			System.Threading.Thread t = new Thread(GameLoop);
@@ -66,7 +52,6 @@ namespace JeuDuMoulin
 				Player1.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
-					//the player must delete an opponent pawn
 					Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 				}
@@ -74,12 +59,52 @@ namespace JeuDuMoulin
 				Player2.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
-					//the player must delete an opponent pawn
 					Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 				}
 			}
 			Phase = JeuDuMoulin.Phase.Second;
+			while (true)
+			{
+				//TODO check end game
+
+				if (Player1.Control.PawnCount == 3)
+				{
+					Player1.MovePawnFreely(TurnHandler.NewTurn());
+					if (TurnHandler.WaitForPlayer())
+					{
+						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
+						TurnHandler.WaitForPlayer();
+					}
+				}
+				else
+				{
+					Player1.MovePawnConstrained(TurnHandler.NewTurn());
+					if (TurnHandler.WaitForPlayer())
+					{
+						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
+						TurnHandler.WaitForPlayer();
+					}
+				}
+				if (Player2.Control.PawnCount == 3)
+				{
+					Player2.MovePawnFreely(TurnHandler.NewTurn());
+					if (TurnHandler.WaitForPlayer())
+					{
+						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
+						TurnHandler.WaitForPlayer();
+					}
+				}
+				else
+				{
+					Player2.MovePawnConstrained(TurnHandler.NewTurn());
+					if (TurnHandler.WaitForPlayer())
+					{
+						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
+						TurnHandler.WaitForPlayer();
+					}
+				}
+			}
 		}
 
 		public class PlayerControl
@@ -141,17 +166,6 @@ namespace JeuDuMoulin
 				node.Owner = Player;
 				PawnsToPlace--;
 				PawnCount++;
-
-				//if (isCreatingAMill)
-				//{
-				//    if (opponentPawnToRemove == null || opponentPawnToRemove.Owner == null || opponentPawnToRemove.Owner == Player)
-				//    {
-				//        throw new ArgumentException("You formed a mill, you must remove a pawn from your opponent.", "opponentPawnToRemove");
-				//    }
-				//    //ok
-				//    opponentPawnToRemove.Owner = null;
-				//}
-
 #if DEBUG
 				Console.WriteLine("{0} placed a pawn on {1}", this.Player, node.Id);
 				//if (isCreatingAMill) Console.WriteLine("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
@@ -175,6 +189,63 @@ namespace JeuDuMoulin
 				Opponent.Control.PawnCount--;
 
 				game.TurnHandler.EndTurn(token, false);
+			}
+
+			public void MovePawnConstrained(Guid token, Node origin, Node destination)
+			{
+				if (!game.TurnHandler.IsMyTurn(token))
+				{
+					throw new NotYourTurnException();
+				}
+
+				if (origin.Owner == null || origin.Owner == Opponent)
+				{
+					throw new GameRuleBrokenException("You can only move one of your own pawns!");
+				}
+
+				if (destination.Owner != null)
+				{
+					throw new GameRuleBrokenException("You can only move your pawn to an empty node!");
+				}
+
+				if (!origin.Neighbors.Contains(destination))
+				{
+					throw new GameRuleBrokenException("You can only move your pawn to an adjacent node!");
+				}
+
+				bool isCreatingAMill = Graph.IsCreatingAMill(destination, Player, origin);
+
+				//ok
+				origin.Owner = null;
+				destination.Owner = Player;
+
+				game.TurnHandler.EndTurn(token, isCreatingAMill);
+			}
+
+			public void MovePawnFreely(Guid token, Node origin, Node destination)
+			{
+				if (!game.TurnHandler.IsMyTurn(token))
+				{
+					throw new NotYourTurnException();
+				}
+
+				if (origin.Owner == null || origin.Owner == Opponent)
+				{
+					throw new GameRuleBrokenException("You can only move one of your own pawns!");
+				}
+
+				if (destination.Owner != null)
+				{
+					throw new GameRuleBrokenException("You can only move your pawn to an empty node!");
+				}
+
+				bool isCreatingAMill = Graph.IsCreatingAMill(destination, Player, origin);
+
+				//ok
+				origin.Owner = null;
+				destination.Owner = Player;
+
+				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
 		}
 

@@ -14,6 +14,16 @@ namespace JeuDuMoulin
 
 		void PlacePawn(Guid token);
 		void RemoveOpponentPawn(Guid token);
+		/// <summary>
+		/// the player can move their pawns only on an adjacent node
+		/// </summary>
+		/// <param name="token"></param>
+		void MovePawnConstrained(Guid token);
+		/// <summary>
+		/// if a player only has 3 pawns left, they can move them anywhere
+		/// </summary>
+		/// <param name="token"></param>
+		void MovePawnFreely(Guid token);
 
 		string ToString();
 
