@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace JeuDuMoulin
 {
@@ -17,6 +18,7 @@ namespace JeuDuMoulin
 		public IPlayer Player1 { get; private set; }
 		public IPlayer Player2 { get; private set; }
 		public TurnHandler TurnHandler { get; private set; }
+		public List<Step> History { get; private set; }
 
 		public IPlayer Winner { get; private set; }
 		public IPlayer Loser { get; private set; }
@@ -25,6 +27,7 @@ namespace JeuDuMoulin
 		{
 			TurnHandler = new TurnHandler();
 			Board = Graph.CreateGraph();
+			History = new List<Step>();
 			Player1 = player1;
 			Player2 = player2;
 			Player1.Initialize(this);
@@ -68,6 +71,7 @@ namespace JeuDuMoulin
 				}
 			}
 			Phase = JeuDuMoulin.Phase.Second;
+			IPlayer currentPlayer = Player1;
 			int countSinceLastTakenPawn = 0;
 			//activated when both players have only 3 pawns left
 			int finalCountDown = 10;
@@ -99,53 +103,67 @@ namespace JeuDuMoulin
 				//La position des pions est répétée trois fois sur le plateau.
 
 				countSinceLastTakenPawn++;
-				bool player1HaveThreeLeft = false;
-				//player1
-				if (Player1.Control.PawnCount == 3)
+				DoPhase2PlayerTurn(currentPlayer, ref countSinceLastTakenPawn);
+				//switch player
+				currentPlayer = currentPlayer == Player1 ? Player2 : Player1;
+
+				if (Player1.Control.PawnCount == 3 && Player2.Control.PawnCount == 3)
 				{
-					player1HaveThreeLeft = true;
-					Player1.MovePawnFreely(TurnHandler.NewTurn());
-					if (TurnHandler.WaitForPlayer())
-					{
-						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
-						TurnHandler.WaitForPlayer();
-						countSinceLastTakenPawn = 0;
-					}
-				}
-				else
-				{
-					Player1.MovePawnConstrained(TurnHandler.NewTurn());
-					if (TurnHandler.WaitForPlayer())
-					{
-						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
-						TurnHandler.WaitForPlayer();
-						countSinceLastTakenPawn = 0;
-					}
-				}
-				//player2
-				if (Player2.Control.PawnCount == 3)
-				{
-					if (player1HaveThreeLeft) finalCountDown--;
-					Player2.MovePawnFreely(TurnHandler.NewTurn());
-					if (TurnHandler.WaitForPlayer())
-					{
-						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
-						TurnHandler.WaitForPlayer();
-						countSinceLastTakenPawn = 0;
-					}
-				}
-				else
-				{
-					Player2.MovePawnConstrained(TurnHandler.NewTurn());
-					if (TurnHandler.WaitForPlayer())
-					{
-						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
-						TurnHandler.WaitForPlayer();
-						countSinceLastTakenPawn = 0;
-					}
+					finalCountDown--;
 				}
 			}
 			//end of the game
+			SaveHistory("history.log");
+		}
+
+		public void SaveHistory(string path)
+		{
+			using (var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+			using (var sw = new System.IO.StreamWriter(fs))
+			{
+				foreach (var item in History)
+				{
+					sw.WriteLine(item.ToString());
+				}
+			}
+		}
+
+		public void LoadHistory(string path)
+		{
+			History.Clear();
+			using (var fs = new System.IO.FileStream(path, System.IO.FileMode.Open, System.IO.FileAccess.Read))
+			using (var sr = new System.IO.StreamReader(fs))
+			{
+				string line;
+				while ((line = sr.ReadLine()) != null)
+				{
+					History.Add(Step.Parse(line, Player1, Player2, Board));
+				}
+			}
+		}
+
+		private void DoPhase2PlayerTurn(IPlayer player, ref int countSinceLastTakenPawn)
+		{
+			if (player.Control.PawnCount == 3)
+			{
+				player.MovePawnFreely(TurnHandler.NewTurn());
+				if (TurnHandler.WaitForPlayer())
+				{
+					player.RemoveOpponentPawn(TurnHandler.NewTurn());
+					TurnHandler.WaitForPlayer();
+					countSinceLastTakenPawn = 0;
+				}
+			}
+			else
+			{
+				player.MovePawnConstrained(TurnHandler.NewTurn());
+				if (TurnHandler.WaitForPlayer())
+				{
+					player.RemoveOpponentPawn(TurnHandler.NewTurn());
+					TurnHandler.WaitForPlayer();
+					countSinceLastTakenPawn = 0;
+				}
+			}
 		}
 
 		public class PlayerControl
@@ -211,6 +229,7 @@ namespace JeuDuMoulin
 				Console.WriteLine("{0} placed a pawn on {1}", this.Player, node.Id);
 				//if (isCreatingAMill) Console.WriteLine("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
 #endif
+				game.History.Add(new Step() { Action = StepAction.PlacePawn, Player = this.Player, NodeA = node });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
 
@@ -229,6 +248,7 @@ namespace JeuDuMoulin
 				node.Owner = null;
 				Opponent.Control.PawnCount--;
 
+				game.History.Add(new Step() { Action = StepAction.RemoveOpponentPawn, Player = this.Player, NodeA = node });
 				game.TurnHandler.EndTurn(token, false);
 			}
 
@@ -260,6 +280,7 @@ namespace JeuDuMoulin
 				origin.Owner = null;
 				destination.Owner = Player;
 
+				game.History.Add(new Step() { Action = StepAction.MovePawnConstrained, Player = this.Player, NodeA = origin, NodeB = destination });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
 
@@ -286,6 +307,7 @@ namespace JeuDuMoulin
 				origin.Owner = null;
 				destination.Owner = Player;
 
+				game.History.Add(new Step() { Action = StepAction.MovePawnFreely, Player = this.Player, NodeA = origin, NodeB = destination });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
 		}
@@ -333,6 +355,58 @@ namespace JeuDuMoulin
 			return returnValue;
 		}
 
+	}
+
+	public class Step
+	{
+		public StepAction Action { get; set; }
+		public IPlayer Player { get; set; }
+		public Node NodeA { get; set; }
+		public Node NodeB { get; set; }
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendFormat("{0}: {1}", Player, Action);
+			if (Action == StepAction.MovePawnConstrained || Action == StepAction.MovePawnFreely)
+			{
+				sb.AppendFormat("({0}, {1})", NodeA.Id, NodeB.Id);
+			}
+			else
+			{
+				sb.AppendFormat("({0})", NodeA.Id);
+			}
+			return sb.ToString();
+		}
+
+		public static Step Parse(string line, IPlayer player1, IPlayer player2, IEnumerable<Node> nodes)
+		{
+			Step newStep = new Step();
+			var m = Regex.Match(line, @"(?<player>[^:]*): (?<action>[^\(]*)\((?<nodeA>[0-9]+)(, )?(?<nodeB>[0-9]*)\)");
+			if (m.Success)
+			{
+				string playerName = m.Groups["player"].Value;
+				newStep.Player = player1.ToString() == playerName ? player1 : player2.ToString() == playerName ? player2 : null;
+				newStep.Action = (StepAction)Enum.Parse(typeof(StepAction), m.Groups["action"].Value);
+				int idA = int.Parse(m.Groups["nodeA"].Value);
+				newStep.NodeA = nodes.First(x => x.Id == idA);
+				if (m.Groups["nodeB"].Length > 0)
+				{
+					int idB = int.Parse(m.Groups["nodeB"].Value);
+					newStep.NodeB = nodes.First(x => x.Id == idB);
+				}
+			}
+			return newStep;
+		}
+	}
+
+	public enum StepAction
+	{
+		None,
+		PlacePawn,
+		RemoveOpponentPawn,
+		MovePawnConstrained,
+		MovePawnFreely,
 	}
 
 	public enum Phase
