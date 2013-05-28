@@ -20,7 +20,7 @@ namespace JeuDuMoulin
 		/// <param name="token"></param>
 		void MovePawnConstrained(Guid token);
 		/// <summary>
-		/// if a player only has 3 pawns left, they can move them anywhere
+		/// if a player only have 3 pawns left, they can move them anywhere
 		/// </summary>
 		/// <param name="token"></param>
 		void MovePawnFreely(Guid token);

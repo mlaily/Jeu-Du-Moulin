@@ -18,6 +18,9 @@ namespace JeuDuMoulin
 		public IPlayer Player2 { get; private set; }
 		public TurnHandler TurnHandler { get; private set; }
 
+		public IPlayer Winner { get; private set; }
+		public IPlayer Loser { get; private set; }
+
 		public Game(IPlayer player1, IPlayer player2)
 		{
 			TurnHandler = new TurnHandler();
@@ -49,13 +52,14 @@ namespace JeuDuMoulin
 			Turn = 1;
 			while (!cancelAll && (Player1.Control.PawnsToPlace > 0 || Player2.Control.PawnsToPlace > 0))
 			{
+				//player1
 				Player1.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
 					Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 				}
-
+				//player2
 				Player2.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
@@ -64,17 +68,48 @@ namespace JeuDuMoulin
 				}
 			}
 			Phase = JeuDuMoulin.Phase.Second;
+			int countSinceLastTakenPawn = 0;
+			//activated when both players have only 3 pawns left
+			int finalCountDown = 10;
 			while (true)
 			{
-				//TODO check end game
+				if (finalCountDown <= 0)
+				{
+					//tie
+					break;
+				}
+				if (countSinceLastTakenPawn >= 50)
+				{
+					//tie
+					break;
+				}
+				if (Player1.Control.PawnCount < 3 || !Graph.CanPlayerMove(Board, Player1))
+				{
+					Winner = Player2;
+					Loser = Player1;
+					break;
+				}
+				if (Player2.Control.PawnCount < 3 || !Graph.CanPlayerMove(Board, Player2))
+				{
+					Winner = Player1;
+					Loser = Player2;
+					break;
+				}
+				//TODO TIE GAME IF:
+				//La position des pions est répétée trois fois sur le plateau.
 
+				countSinceLastTakenPawn++;
+				bool player1HaveThreeLeft = false;
+				//player1
 				if (Player1.Control.PawnCount == 3)
 				{
+					player1HaveThreeLeft = true;
 					Player1.MovePawnFreely(TurnHandler.NewTurn());
 					if (TurnHandler.WaitForPlayer())
 					{
 						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
 						TurnHandler.WaitForPlayer();
+						countSinceLastTakenPawn = 0;
 					}
 				}
 				else
@@ -84,15 +119,19 @@ namespace JeuDuMoulin
 					{
 						Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
 						TurnHandler.WaitForPlayer();
+						countSinceLastTakenPawn = 0;
 					}
 				}
+				//player2
 				if (Player2.Control.PawnCount == 3)
 				{
+					if (player1HaveThreeLeft) finalCountDown--;
 					Player2.MovePawnFreely(TurnHandler.NewTurn());
 					if (TurnHandler.WaitForPlayer())
 					{
 						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
 						TurnHandler.WaitForPlayer();
+						countSinceLastTakenPawn = 0;
 					}
 				}
 				else
@@ -102,9 +141,11 @@ namespace JeuDuMoulin
 					{
 						Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
 						TurnHandler.WaitForPlayer();
+						countSinceLastTakenPawn = 0;
 					}
 				}
 			}
+			//end of the game
 		}
 
 		public class PlayerControl
@@ -268,7 +309,7 @@ namespace JeuDuMoulin
 			return currentToken == token;
 		}
 
-		public void EndTurn(Guid token, bool hasCreatedAMill)
+		public void EndTurn(Guid token, bool haveCreatedAMill)
 		{
 			if (token != currentToken)
 			{
@@ -276,7 +317,7 @@ namespace JeuDuMoulin
 			}
 			else
 			{
-				returnValue = hasCreatedAMill;
+				returnValue = haveCreatedAMill;
 				currentToken = Guid.Empty;
 				m.Set();
 			}

@@ -49,6 +49,21 @@ namespace JeuDuMoulin
 	public static class Graph
 	{
 
+		/// <summary>
+		/// test if a player can move any of their pawns. otherwise, the other player have won.
+		/// </summary>
+		public static bool CanPlayerMove(IEnumerable<Node> nodes, IPlayer player)
+		{
+			foreach (var node in nodes.Where(x => x.Owner == player))
+			{
+				if (node.Neighbors.Any(x => x.Owner == null))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		/// <param name="oldPlace">if we are checking a moving pawn</param>
 		public static bool IsCreatingAMill(Node newPlace, IPlayer checkForPlayer, Node oldPlace = null)
 		{
