@@ -167,12 +167,17 @@ namespace JeuDuMoulin
 								OnGraphicRefresh();
 							}
 						}
-						//if (SelectedNode != clickedNode)
-						//{
-						//    //todo: check if the current pawn belongs to the appropriate player...
-						//    SelectedNode = clickedNode;
-						//    this.Invalidate();
-						//}
+						if (currentAction == CalledFunction.MovePawnConstrained || currentAction == CalledFunction.MovePawnFreely)
+						{
+							if (SelectedNode != clickedNode)
+							{
+								if (clickedNode.Owner == this)
+								{
+									SelectedNode = clickedNode;
+									this.Invalidate();
+								}
+							}
+						}
 					}
 					else //empty node
 					{
@@ -187,17 +192,33 @@ namespace JeuDuMoulin
 				}
 				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
 				{
-					//move the pawn
-					if (SelectedNode != null &&
-						clickedNode.Owner == null &&
-						SelectedNode != clickedNode)
+					if (currentAction == CalledFunction.MovePawnConstrained || currentAction == CalledFunction.MovePawnFreely)
 					{
-						//if (Game.MovePawn(SelectedNode, clickedNode, SelectedNode.Occupation))
-						//{
-						//    SelectedNode = clickedNode;
-						//    this.Invalidate();
-						//    OnGraphicRefresh();
-						//}
+						//move the pawn
+						if (SelectedNode != null &&
+							clickedNode.Owner == null &&
+							SelectedNode != clickedNode)
+						{
+							if (currentAction == CalledFunction.MovePawnConstrained)
+							{
+								if (SelectedNode.Neighbors.Contains(clickedNode))
+								{
+									Control.MovePawnConstrained(currentToken, SelectedNode, clickedNode);
+									currentAction = CalledFunction.None;
+									SelectedNode = null;
+									this.Invalidate();
+									OnGraphicRefresh();
+								}
+							}
+							else if (currentAction == CalledFunction.MovePawnFreely)
+							{
+								Control.MovePawnFreely(currentToken, SelectedNode, clickedNode);
+								currentAction = CalledFunction.None;
+								SelectedNode = null;
+								this.Invalidate();
+								OnGraphicRefresh();
+							}
+						}
 					}
 				}
 			}
@@ -228,6 +249,20 @@ namespace JeuDuMoulin
 			this.Invalidate();
 		}
 
+		public void MovePawnConstrained(Guid token)
+		{
+			currentAction = CalledFunction.MovePawnConstrained;
+			this.currentToken = token;
+			this.Invalidate();
+		}
+
+		public void MovePawnFreely(Guid token)
+		{
+			currentAction = CalledFunction.MovePawnFreely;
+			this.currentToken = token;
+			this.Invalidate();
+		}
+
 		public override string ToString()
 		{
 			return Game.Player1 == this ? "Player1" : "Player2";
@@ -238,6 +273,8 @@ namespace JeuDuMoulin
 			None,
 			PlacePawn,
 			RemoveOpponentPawn,
+			MovePawnConstrained,
+			MovePawnFreely,
 		}
 
 	}
