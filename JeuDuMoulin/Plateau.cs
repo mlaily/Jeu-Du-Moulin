@@ -17,7 +17,7 @@ namespace JeuDuMoulin
 		public Game.PlayerControl Control { get; private set; }
 		private Guid currentToken;
 
-		private CalledFunction currentAction = CalledFunction.None;
+		private StepAction currentAction = StepAction.None;
 
 		#region Graphic representation
 		Point Origin;
@@ -157,17 +157,17 @@ namespace JeuDuMoulin
 					//normal selection
 					if (clickedNode.Owner != null)
 					{
-						if (currentAction == CalledFunction.RemoveOpponentPawn)
+						if (currentAction == StepAction.RemoveOpponentPawn)
 						{
 							if (clickedNode.Owner != null && clickedNode.Owner != this)
 							{
 								Control.RemoveOpponentPawn(currentToken, clickedNode);
-								currentAction = CalledFunction.None;
+								currentAction = StepAction.None;
 								this.Invalidate();
 								OnGraphicRefresh();
 							}
 						}
-						if (currentAction == CalledFunction.MovePawnConstrained || currentAction == CalledFunction.MovePawnFreely)
+						if (currentAction == StepAction.MovePawnConstrained || currentAction == StepAction.MovePawnFreely)
 						{
 							if (SelectedNode != clickedNode)
 							{
@@ -181,10 +181,10 @@ namespace JeuDuMoulin
 					}
 					else //empty node
 					{
-						if (currentAction == CalledFunction.PlacePawn)
+						if (currentAction == StepAction.PlacePawn)
 						{
 							Control.PlacePawn(currentToken, clickedNode);
-							currentAction = CalledFunction.None;
+							currentAction = StepAction.None;
 							this.Invalidate();
 							OnGraphicRefresh();
 						}
@@ -192,28 +192,28 @@ namespace JeuDuMoulin
 				}
 				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
 				{
-					if (currentAction == CalledFunction.MovePawnConstrained || currentAction == CalledFunction.MovePawnFreely)
+					if (currentAction == StepAction.MovePawnConstrained || currentAction == StepAction.MovePawnFreely)
 					{
 						//move the pawn
 						if (SelectedNode != null &&
 							clickedNode.Owner == null &&
 							SelectedNode != clickedNode)
 						{
-							if (currentAction == CalledFunction.MovePawnConstrained)
+							if (currentAction == StepAction.MovePawnConstrained)
 							{
 								if (SelectedNode.Neighbors.Contains(clickedNode))
 								{
 									Control.MovePawnConstrained(currentToken, SelectedNode, clickedNode);
-									currentAction = CalledFunction.None;
+									currentAction = StepAction.None;
 									SelectedNode = null;
 									this.Invalidate();
 									OnGraphicRefresh();
 								}
 							}
-							else if (currentAction == CalledFunction.MovePawnFreely)
+							else if (currentAction == StepAction.MovePawnFreely)
 							{
 								Control.MovePawnFreely(currentToken, SelectedNode, clickedNode);
-								currentAction = CalledFunction.None;
+								currentAction = StepAction.None;
 								SelectedNode = null;
 								this.Invalidate();
 								OnGraphicRefresh();
@@ -237,28 +237,28 @@ namespace JeuDuMoulin
 
 		public void PlacePawn(Guid token)
 		{
-			currentAction = CalledFunction.PlacePawn;
+			currentAction = StepAction.PlacePawn;
 			this.currentToken = token;
 			this.Invalidate();
 		}
 
 		public void RemoveOpponentPawn(Guid token)
 		{
-			currentAction = CalledFunction.RemoveOpponentPawn;
+			currentAction = StepAction.RemoveOpponentPawn;
 			this.currentToken = token;
 			this.Invalidate();
 		}
 
 		public void MovePawnConstrained(Guid token)
 		{
-			currentAction = CalledFunction.MovePawnConstrained;
+			currentAction = StepAction.MovePawnConstrained;
 			this.currentToken = token;
 			this.Invalidate();
 		}
 
 		public void MovePawnFreely(Guid token)
 		{
-			currentAction = CalledFunction.MovePawnFreely;
+			currentAction = StepAction.MovePawnFreely;
 			this.currentToken = token;
 			this.Invalidate();
 		}
@@ -266,15 +266,6 @@ namespace JeuDuMoulin
 		public override string ToString()
 		{
 			return Game.Player1 == this ? "Player1" : "Player2";
-		}
-
-		private enum CalledFunction
-		{
-			None,
-			PlacePawn,
-			RemoveOpponentPawn,
-			MovePawnConstrained,
-			MovePawnFreely,
 		}
 
 	}
