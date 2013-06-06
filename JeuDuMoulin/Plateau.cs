@@ -10,19 +10,16 @@ using System.Threading;
 
 namespace JeuDuMoulin
 {
-	public partial class Plateau : UserControl, IPlayer
+	public partial class Plateau : UserControl
 	{
-
-		public Game Game { get; private set; }
-		public Game.PlayerControl Control { get; private set; }
-		private Guid currentToken;
-
-		private StepAction currentAction = StepAction.None;
+		public Game Game { get; set; }
+		//DO NOT FORGET TO SET MANUALLY
+		public IPlayer Player { get; set; }
 
 		#region Graphic representation
-		Point Origin;
-		const int SpacingCoef = 65;
-		Node SelectedNode;
+		protected Point Origin;
+		protected const int SpacingCoef = 65;
+		protected Node SelectedNode;
 		const int PieRadius = 10;
 		Color background = Color.White;
 		Pen defaultPen = new Pen(Color.Black, 2);
@@ -33,28 +30,13 @@ namespace JeuDuMoulin
 
 		public event EventHandler GraphicRefresh;
 
-		private void OnGraphicRefresh()
+		protected void OnGraphicRefresh()
 		{
 			var handler = GraphicRefresh;
 			if (handler != null)
 			{
 				handler(this, EventArgs.Empty);
 			}
-		}
-
-		public void Initialize(Game game)
-		{
-			this.Game = game;
-			this.Control = new Game.PlayerControl(this);
-			this.Invalidate();
-
-			//graphic debug
-			//Random r = new Random(42);
-			//foreach (var node in Game.Board.Nodes)
-			//{
-			//    node.Occupation = (Occupation)r.Next(3);
-			//}
-			//SelectedNode = Game.Board.Nodes.ElementAt(3);
 		}
 
 		public Plateau()
@@ -64,7 +46,7 @@ namespace JeuDuMoulin
 
 		private void Plateau_Paint(object sender, PaintEventArgs e)
 		{
-			if (this.Game == null)
+			if (Game == null || Game.Board == null)
 			{
 				//not yet initialized
 				e.Graphics.Clear(Color.Purple);
@@ -75,10 +57,13 @@ namespace JeuDuMoulin
 			}
 		}
 
-		private void DrawPlateau(Graphics g)
+		protected void DrawPlateau(Graphics g)
 		{
 			g.Clear(background);
-			g.DrawString(currentAction.ToString(), new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(Color.Blue), 10, 10);
+			if (Player != null)
+			{
+				g.DrawString(Player.CurrentAction.ToString(), new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(Color.Blue), 10, 10);
+			}
 			foreach (var segment in GetAllEdges(Game.Board, Origin, SpacingCoef))
 			{
 				g.DrawLine(defaultPen, segment.Item1, segment.Item2);
@@ -115,7 +100,7 @@ namespace JeuDuMoulin
 			//g.FillPie(new SolidBrush(Color.Gray), Origin.X - PieRadius, Origin.Y - PieRadius, PieRadius * 2, PieRadius * 2, 0, 360);
 		}
 
-		private IEnumerable<Tuple<Point, Point>> GetAllEdges(IEnumerable<Node> nodes, Point origin, int coef)
+		protected IEnumerable<Tuple<Point, Point>> GetAllEdges(IEnumerable<Node> nodes, Point origin, int coef)
 		{
 			var result = new HashSet<Tuple<Point, Point>>();
 			//TODO: change algorithm to avoid returning a segment more than once
@@ -131,7 +116,7 @@ namespace JeuDuMoulin
 
 		/// <param name="toTest">mouse location</param>
 		/// <returns>a node, or null</returns>
-		private Node MapPointToNode(IEnumerable<Node> nodes, Point toTest, Point origin, int coef)
+		protected Node MapPointToNode(IEnumerable<Node> nodes, Point toTest, Point origin, int coef)
 		{
 			//absX = originX + pointX * coef
 			//(absX - originX)/coef = pointX
@@ -140,132 +125,9 @@ namespace JeuDuMoulin
 			return correspondingNode;
 		}
 
-		private void Plateau_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (!Game.TurnHandler.IsMyTurn(currentToken))
-			{
-				return;
-			}
-			var clickedNode = MapPointToNode(Game.Board, e.Location, Origin, SpacingCoef);
-			if (clickedNode != null)
-			{
-#if DEBUG
-				Console.WriteLine("clicked on " + clickedNode.Id.ToString());
-#endif
-				if (e.Button == System.Windows.Forms.MouseButtons.Left)
-				{
-					//normal selection
-					if (clickedNode.Owner != null)
-					{
-						if (currentAction == StepAction.RemoveOpponentPawn)
-						{
-							if (clickedNode.Owner != null && clickedNode.Owner != this)
-							{
-								Control.RemoveOpponentPawn(currentToken, clickedNode);
-								currentAction = StepAction.None;
-								this.Invalidate();
-								OnGraphicRefresh();
-							}
-						}
-						if (currentAction == StepAction.MovePawnConstrained || currentAction == StepAction.MovePawnFreely)
-						{
-							if (SelectedNode != clickedNode)
-							{
-								if (clickedNode.Owner == this)
-								{
-									SelectedNode = clickedNode;
-									this.Invalidate();
-								}
-							}
-						}
-					}
-					else //empty node
-					{
-						if (currentAction == StepAction.PlacePawn)
-						{
-							Control.PlacePawn(currentToken, clickedNode);
-							currentAction = StepAction.None;
-							this.Invalidate();
-							OnGraphicRefresh();
-						}
-					}
-				}
-				else if (e.Button == System.Windows.Forms.MouseButtons.Right)
-				{
-					if (currentAction == StepAction.MovePawnConstrained || currentAction == StepAction.MovePawnFreely)
-					{
-						//move the pawn
-						if (SelectedNode != null &&
-							clickedNode.Owner == null &&
-							SelectedNode != clickedNode)
-						{
-							if (currentAction == StepAction.MovePawnConstrained)
-							{
-								if (SelectedNode.Neighbors.Contains(clickedNode))
-								{
-									Control.MovePawnConstrained(currentToken, SelectedNode, clickedNode);
-									currentAction = StepAction.None;
-									SelectedNode = null;
-									this.Invalidate();
-									OnGraphicRefresh();
-								}
-							}
-							else if (currentAction == StepAction.MovePawnFreely)
-							{
-								Control.MovePawnFreely(currentToken, SelectedNode, clickedNode);
-								currentAction = StepAction.None;
-								SelectedNode = null;
-								this.Invalidate();
-								OnGraphicRefresh();
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-#if DEBUG
-				Console.WriteLine("clicked on nothing");
-#endif
-			}
-		}
-
 		private void Plateau_Load(object sender, EventArgs e)
 		{
 			Origin = new Point(this.Width / 2, this.Height / 2);
-		}
-
-		public void PlacePawn(Guid token)
-		{
-			currentAction = StepAction.PlacePawn;
-			this.currentToken = token;
-			this.Invalidate();
-		}
-
-		public void RemoveOpponentPawn(Guid token)
-		{
-			currentAction = StepAction.RemoveOpponentPawn;
-			this.currentToken = token;
-			this.Invalidate();
-		}
-
-		public void MovePawnConstrained(Guid token)
-		{
-			currentAction = StepAction.MovePawnConstrained;
-			this.currentToken = token;
-			this.Invalidate();
-		}
-
-		public void MovePawnFreely(Guid token)
-		{
-			currentAction = StepAction.MovePawnFreely;
-			this.currentToken = token;
-			this.Invalidate();
-		}
-
-		public override string ToString()
-		{
-			return Game.Player1 == this ? "Player1" : "Player2";
 		}
 
 	}

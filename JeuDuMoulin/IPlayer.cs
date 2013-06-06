@@ -10,6 +10,7 @@ namespace JeuDuMoulin
 	{
 		Game Game { get; }
 		Game.PlayerControl Control { get; }
+		StepAction CurrentAction { get; set; }
 		void Initialize(Game game);
 
 		void PlacePawn(Guid token);

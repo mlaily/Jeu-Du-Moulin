@@ -32,8 +32,8 @@
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.label1 = new System.Windows.Forms.Label();
-			this.plateau2 = new JeuDuMoulin.Plateau();
 			this.plateau1 = new JeuDuMoulin.Plateau();
+			this.human1 = new JeuDuMoulin.Human();
 			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -67,30 +67,32 @@
 			this.label1.TabIndex = 3;
 			this.label1.Text = "VS";
 			// 
-			// plateau2
-			// 
-			this.plateau2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.plateau2.Location = new System.Drawing.Point(700, 42);
-			this.plateau2.Name = "plateau2";
-			this.plateau2.Size = new System.Drawing.Size(500, 500);
-			this.plateau2.TabIndex = 2;
-			// 
 			// plateau1
 			// 
-			this.plateau1.Location = new System.Drawing.Point(12, 42);
+			this.plateau1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.plateau1.Game = null;
+			this.plateau1.Location = new System.Drawing.Point(700, 42);
 			this.plateau1.Name = "plateau1";
 			this.plateau1.Size = new System.Drawing.Size(500, 500);
-			this.plateau1.TabIndex = 0;
+			this.plateau1.TabIndex = 2;
+			// 
+			// human1
+			// 
+			this.human1.Game = null;
+			this.human1.Location = new System.Drawing.Point(12, 42);
+			this.human1.Name = "human1";
+			this.human1.Size = new System.Drawing.Size(500, 500);
+			this.human1.TabIndex = 4;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1218, 559);
+			this.Controls.Add(this.human1);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.plateau2);
-			this.Controls.Add(this.toolStrip1);
 			this.Controls.Add(this.plateau1);
+			this.Controls.Add(this.toolStrip1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.Name = "Form1";
 			this.Text = "Form1";
@@ -104,11 +106,11 @@
 
 		#endregion
 
-		private Plateau plateau1;
 		private System.Windows.Forms.ToolStrip toolStrip1;
 		private System.Windows.Forms.ToolStripButton toolStripButton1;
-		private Plateau plateau2;
+		private Plateau plateau1;
 		private System.Windows.Forms.Label label1;
+		private Human human1;
 	}
 }
 
