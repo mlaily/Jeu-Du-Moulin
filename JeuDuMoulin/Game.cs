@@ -112,6 +112,8 @@ namespace JeuDuMoulin
 					finalCountDown--;
 				}
 			}
+
+			Console.WriteLine("{0} Wins!", Winner);
 			//end of the game
 			SaveHistory("history.log");
 		}
@@ -323,6 +325,7 @@ namespace JeuDuMoulin
 		public Guid NewTurn()
 		{
 			returnValue = false;
+			m.Reset();
 			return currentToken = Guid.NewGuid();
 		}
 
@@ -350,7 +353,6 @@ namespace JeuDuMoulin
 		/// </summary>
 		public bool WaitForPlayer()
 		{
-			m.Reset();
 			m.WaitOne();
 			return returnValue;
 		}
