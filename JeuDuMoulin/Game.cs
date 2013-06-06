@@ -73,6 +73,7 @@ namespace JeuDuMoulin
 			Phase = JeuDuMoulin.Phase.Second;
 			IPlayer currentPlayer = Player1;
 			int countSinceLastTakenPawn = 0;
+			List<List<Tuple<int, IPlayer>>> BoardHistory = new List<List<Tuple<int, IPlayer>>>();
 			//activated when both players have only 3 pawns left
 			int finalCountDown = 10;
 			while (true)
@@ -87,6 +88,17 @@ namespace JeuDuMoulin
 					//tie
 					break;
 				}
+				//La position des pions est répétée trois fois sur le plateau.
+				//done for each turn (both players play)
+				if (currentPlayer == Player1 && BoardHistory.Count >= 3)
+				{
+					if (BoardHistory.Count(x => CompareBoards(x, GetBoardPositions())) >= 3)
+					{
+						//tie
+						break;
+					}
+				}
+
 				if (Player1.Control.PawnCount < 3 || !Graph.CanPlayerMove(Board, Player1))
 				{
 					Winner = Player2;
@@ -99,8 +111,12 @@ namespace JeuDuMoulin
 					Loser = Player2;
 					break;
 				}
-				//TODO TIE GAME IF:
-				//La position des pions est répétée trois fois sur le plateau.
+
+				if (currentPlayer == Player1)
+				{
+					//done for each turn (both players play)
+					BoardHistory.Add(GetBoardPositions());
+				}
 
 				countSinceLastTakenPawn++;
 				DoPhase2PlayerTurn(currentPlayer, ref countSinceLastTakenPawn);
@@ -112,10 +128,44 @@ namespace JeuDuMoulin
 					finalCountDown--;
 				}
 			}
-
-			Console.WriteLine("{0} Wins!", Winner);
+			if (Winner == null)
+			{
+				Console.WriteLine("Game ended in a tie!");
+			}
+			else
+			{
+				Console.WriteLine("{0} Wins!", Winner);
+			}
 			//end of the game
 			SaveHistory("history.log");
+		}
+
+		private List<Tuple<int, IPlayer>> GetBoardPositions()
+		{
+			List<Tuple<int, IPlayer>> result = new List<Tuple<int, IPlayer>>();
+			foreach (var item in this.Board)
+			{
+				result.Add(new Tuple<int, IPlayer>(item.Id, item.Owner));
+			}
+			return result;
+		}
+
+		private bool CompareBoards(List<Tuple<int, IPlayer>> a, List<Tuple<int, IPlayer>> b)
+		{
+			foreach (var itemA in a)
+			{
+				foreach (var itemB in b)
+				{
+					if (itemA.Item1 == itemB.Item1)
+					{
+						if (itemA.Item2 != itemB.Item2)
+						{
+							return false;
+						}
+					}
+				}
+			}
+			return true;
 		}
 
 		public void SaveHistory(string path)
