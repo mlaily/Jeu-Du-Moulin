@@ -21,8 +21,8 @@ namespace JeuDuMoulin
 			InitializeComponent();
 			//plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
 			//plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
-			player1 = plateau1;
-			player2 = new RandomAI();
+			player1 = new RandomAI("AI1");
+			player2 = new RandomAI("AI2");
 		}
 
 		private void toolStripButton1_Click(object sender, EventArgs e)

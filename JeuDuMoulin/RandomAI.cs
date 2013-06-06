@@ -14,6 +14,13 @@ namespace JeuDuMoulin
 
 		public Game.PlayerControl Control { get; private set; }
 
+		public string Name { get; private set; }
+
+		public RandomAI(string name)
+		{
+			this.Name = name;
+		}
+
 		public void Initialize(Game game)
 		{
 			this.Game = game;
@@ -48,6 +55,11 @@ namespace JeuDuMoulin
 			var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
 			var availableNeighbors = Game.Board.Where(x => x.Owner == null).ToList();
 			Control.MovePawnFreely(token, node, availableNeighbors.ElementAt(r.Next(availableNeighbors.Count)));
+		}
+
+		public override string ToString()
+		{
+			return this.Name;
 		}
 	}
 }
