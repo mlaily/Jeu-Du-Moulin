@@ -54,7 +54,8 @@
     </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="Graph.cs" />
-    <Compile Include="Human.cs">
+    <Compile Include="Players\MinMaxAI.cs" />
+    <Compile Include="Players\Human.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IPlayer.cs" />
@@ -67,11 +68,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RandomAI.cs" />
+    <Compile Include="Players\RandomAI.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Human.resx">
+    <EmbeddedResource Include="Players\Human.resx">
       <DependentUpon>Human.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Plateau.resx">

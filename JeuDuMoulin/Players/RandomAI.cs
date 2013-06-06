@@ -5,6 +5,9 @@ using System.Text;
 
 namespace JeuDuMoulin
 {
+	/// <summary>
+	/// Débilité artificielle
+	/// </summary>
 	public class RandomAI : IPlayer
 	{
 
