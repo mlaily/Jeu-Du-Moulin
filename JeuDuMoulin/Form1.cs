@@ -19,21 +19,27 @@ namespace JeuDuMoulin
 		public Form1()
 		{
 			InitializeComponent();
-			//plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
-			//plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
-			player1 = human1; //new RandomAI("AI1");
-			player2 = new RandomAI("AI2");
 		}
 
 		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
+			//12 42
+			var plateau1 = new Human() { Location = new Point(12, 42), Size = new Size(500, 500) };
+			this.Controls.Add(plateau1);
+			//700 42
+			var plateau2 = new Plateau() { Location = new Point(700, 42), Size = new Size(500, 500) };
+			this.Controls.Add(plateau2);
+			//plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
+			//plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
+			player1 = plateau1; //new RandomAI("AI1");
+			player2 = new RandomAI("AI2");
 			game = new Game(player1, player2);
 			game.ArtificialWait = TimeSpan.FromMilliseconds(200);
-			plateau1.Game = game;
-			plateau1.Player = player2;
-			plateau1.Invalidate();
+			plateau2.Game = game;
+			plateau2.Player = player2;
+			plateau2.Invalidate();
 			game.TurnEnded += (o, e2) => plateau1.Invalidate();
-			game.TurnEnded += (o, e2) => human1.Invalidate();
+			game.TurnEnded += (o, e2) => plateau2.Invalidate();
 			game.Start();
 		}
 
