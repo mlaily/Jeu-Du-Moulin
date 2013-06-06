@@ -13,6 +13,7 @@ namespace JeuDuMoulin
 	{
 
 		Game game;
+		IPlayer player1;
 		IPlayer player2;
 
 		public Form1()
@@ -20,12 +21,13 @@ namespace JeuDuMoulin
 			InitializeComponent();
 			//plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
 			//plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
+			player1 = plateau1;
 			player2 = new RandomAI();
 		}
 
 		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
-			game = new Game(this.plateau1, player2);
+			game = new Game(player1, player2);
 			game.Start();
 		}
 
