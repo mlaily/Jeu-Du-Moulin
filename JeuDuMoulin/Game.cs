@@ -100,13 +100,13 @@ namespace JeuDuMoulin
 			{
 				if (finalCountDown <= 0)
 				{
-					Console.WriteLine("finalCountDown <= 0");
+					Logging.Log("finalCountDown <= 0");
 					//tie
 					break;
 				}
 				if (countSinceLastTakenPawn >= 50)
 				{
-					Console.WriteLine("countSinceLastTakenPawn >= 50");
+					Logging.Log("countSinceLastTakenPawn >= 50");
 					//tie
 					break;
 				}
@@ -116,7 +116,7 @@ namespace JeuDuMoulin
 				{
 					if (BoardHistory.Count(x => CompareBoards(x, GetBoardPositions())) >= 3)
 					{
-						Console.WriteLine("La position des pions est répétée trois fois sur le plateau.");
+						Logging.Log("La position des pions est répétée trois fois sur le plateau.");
 						//tie
 						break;
 					}
@@ -154,11 +154,11 @@ namespace JeuDuMoulin
 			}
 			if (Winner == null)
 			{
-				Console.WriteLine("Game ended in a tie!");
+				Logging.Log("Game ended in a tie!");
 			}
 			else
 			{
-				Console.WriteLine("{0} Wins!", Winner);
+				Logging.Log("{0} Wins!", Winner);
 			}
 			//end of the game
 			SaveHistory("history.log");
@@ -309,8 +309,8 @@ namespace JeuDuMoulin
 				PawnsToPlace--;
 				PawnCount++;
 #if DEBUG
-				Console.WriteLine("{0} placed a pawn on {1}", this.Player, node.Id);
-				//if (isCreatingAMill) Console.WriteLine("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
+				Logging.Log("{0} placed a pawn on {1}", this.Player, node.Id);
+				//if (isCreatingAMill) Logging.Log("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
 #endif
 				game.History.Add(new Step() { Action = StepAction.PlacePawn, Player = this.Player, NodeA = node });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);

@@ -72,7 +72,7 @@ namespace JeuDuMoulin
 			if (resultX == 3)
 			{
 #if DEBUG
-				Console.WriteLine("Mill on X for {0}", checkForPlayer);
+				Logging.Log("Mill on X for {0}", checkForPlayer);
 #endif
 				return true;
 			}
@@ -80,7 +80,7 @@ namespace JeuDuMoulin
 			if (resultY == 3)
 			{
 #if DEBUG
-				Console.WriteLine("Mill on Y for {0}", checkForPlayer);
+				Logging.Log("Mill on Y for {0}", checkForPlayer);
 #endif
 				return true;
 			}

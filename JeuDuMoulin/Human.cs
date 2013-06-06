@@ -47,7 +47,7 @@ namespace JeuDuMoulin
 			if (clickedNode != null)
 			{
 #if DEBUG
-				Console.WriteLine("clicked on " + clickedNode.Id.ToString());
+				Logging.Log("clicked on " + clickedNode.Id.ToString());
 #endif
 				if (e.Button == System.Windows.Forms.MouseButtons.Left)
 				{
@@ -122,7 +122,7 @@ namespace JeuDuMoulin
 			else
 			{
 #if DEBUG
-				Console.WriteLine("clicked on nothing");
+				Logging.Log("clicked on nothing");
 #endif
 			}
 		}
