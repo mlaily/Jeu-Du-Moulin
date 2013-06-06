@@ -58,6 +58,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IPlayer.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="Plateau.cs">
       <SubType>UserControl</SubType>
     </Compile>
