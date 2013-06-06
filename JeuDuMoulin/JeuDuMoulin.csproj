@@ -54,6 +54,9 @@
     </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="Graph.cs" />
+    <Compile Include="Human.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="IPlayer.cs" />
     <Compile Include="Plateau.cs">
       <SubType>UserControl</SubType>
@@ -66,6 +69,9 @@
     <Compile Include="RandomAI.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Human.resx">
+      <DependentUpon>Human.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Plateau.resx">
       <DependentUpon>Plateau.cs</DependentUpon>

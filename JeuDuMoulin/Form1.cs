@@ -21,13 +21,19 @@ namespace JeuDuMoulin
 			InitializeComponent();
 			//plateau1.GraphicRefresh += (o, e) => plateau2.Invalidate();
 			//plateau2.GraphicRefresh += (o, e) => plateau1.Invalidate();
-			player1 = new RandomAI("AI1");
+			player1 = human1; //new RandomAI("AI1");
 			player2 = new RandomAI("AI2");
 		}
 
 		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
 			game = new Game(player1, player2);
+			game.ArtificialWait = TimeSpan.FromMilliseconds(200);
+			plateau1.Game = game;
+			plateau1.Player = player2;
+			plateau1.Invalidate();
+			game.TurnEnded += (o, e2) => plateau1.Invalidate();
+			game.TurnEnded += (o, e2) => human1.Invalidate();
 			game.Start();
 		}
 

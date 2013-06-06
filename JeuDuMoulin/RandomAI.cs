@@ -14,6 +14,8 @@ namespace JeuDuMoulin
 
 		public Game.PlayerControl Control { get; private set; }
 
+		public StepAction CurrentAction { get; set; }
+
 		public string Name { get; private set; }
 
 		public RandomAI(string name)

@@ -13,15 +13,30 @@ namespace JeuDuMoulin
 
 		public HashSet<Node> Board { get; private set; }
 
-		public int Turn { get; private set; }
 		public Phase Phase { get; private set; }
 		public IPlayer Player1 { get; private set; }
 		public IPlayer Player2 { get; private set; }
 		public TurnHandler TurnHandler { get; private set; }
 		public List<Step> History { get; private set; }
+		public TimeSpan ArtificialWait { get; set; }
 
 		public IPlayer Winner { get; private set; }
 		public IPlayer Loser { get; private set; }
+
+		public event EventHandler<TurnEndedEventArgs> TurnEnded;
+
+		private void OnTurnEnded(IPlayer player)
+		{
+			var handler = TurnEnded;
+			if (handler != null)
+			{
+				handler(this, new TurnEndedEventArgs() { Player = player });
+			}
+			if (ArtificialWait > TimeSpan.MinValue)
+			{
+				System.Threading.Thread.Sleep(ArtificialWait);
+			}
+		}
 
 		public Game(IPlayer player1, IPlayer player2)
 		{
@@ -52,23 +67,28 @@ namespace JeuDuMoulin
 		private void GameLoop()
 		{
 			Phase = JeuDuMoulin.Phase.First;
-			Turn = 1;
 			while (!cancelAll && (Player1.Control.PawnsToPlace > 0 || Player2.Control.PawnsToPlace > 0))
 			{
 				//player1
+				Player1.CurrentAction = StepAction.PlacePawn;
 				Player1.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
+					Player1.CurrentAction = StepAction.RemoveOpponentPawn;
 					Player1.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 				}
+				OnTurnEnded(Player1);
 				//player2
+				Player2.CurrentAction = StepAction.PlacePawn;
 				Player2.PlacePawn(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
+					Player2.CurrentAction = StepAction.RemoveOpponentPawn;
 					Player2.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 				}
+				OnTurnEnded(Player2);
 			}
 			Phase = JeuDuMoulin.Phase.Second;
 			IPlayer currentPlayer = Player1;
@@ -80,11 +100,13 @@ namespace JeuDuMoulin
 			{
 				if (finalCountDown <= 0)
 				{
+					Console.WriteLine("finalCountDown <= 0");
 					//tie
 					break;
 				}
 				if (countSinceLastTakenPawn >= 50)
 				{
+					Console.WriteLine("countSinceLastTakenPawn >= 50");
 					//tie
 					break;
 				}
@@ -94,6 +116,7 @@ namespace JeuDuMoulin
 				{
 					if (BoardHistory.Count(x => CompareBoards(x, GetBoardPositions())) >= 3)
 					{
+						Console.WriteLine("La position des pions est répétée trois fois sur le plateau.");
 						//tie
 						break;
 					}
@@ -120,6 +143,7 @@ namespace JeuDuMoulin
 
 				countSinceLastTakenPawn++;
 				DoPhase2PlayerTurn(currentPlayer, ref countSinceLastTakenPawn);
+				OnTurnEnded(currentPlayer);
 				//switch player
 				currentPlayer = currentPlayer == Player1 ? Player2 : Player1;
 
@@ -198,9 +222,11 @@ namespace JeuDuMoulin
 		{
 			if (player.Control.PawnCount == 3)
 			{
+				player.CurrentAction = StepAction.MovePawnFreely;
 				player.MovePawnFreely(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
+					player.CurrentAction = StepAction.RemoveOpponentPawn;
 					player.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 					countSinceLastTakenPawn = 0;
@@ -208,9 +234,11 @@ namespace JeuDuMoulin
 			}
 			else
 			{
+				player.CurrentAction = StepAction.MovePawnConstrained;
 				player.MovePawnConstrained(TurnHandler.NewTurn());
 				if (TurnHandler.WaitForPlayer())
 				{
+					player.CurrentAction = StepAction.RemoveOpponentPawn;
 					player.RemoveOpponentPawn(TurnHandler.NewTurn());
 					TurnHandler.WaitForPlayer();
 					countSinceLastTakenPawn = 0;
@@ -222,6 +250,8 @@ namespace JeuDuMoulin
 		{
 			//convenient reference
 			private Game game;
+
+			public StepAction CurrentAction { get; private set; }
 
 			public int PawnsToPlace { get; private set; }
 			public int PawnCount { get; private set; }
@@ -246,6 +276,7 @@ namespace JeuDuMoulin
 				game = player.Game;
 				PawnsToPlace = 9;
 				PawnCount = 0;
+				CurrentAction = StepAction.None;
 			}
 
 			/// <summary>
@@ -471,6 +502,11 @@ namespace JeuDuMoulin
 		/// déplacement
 		/// </summary>
 		Second,
+	}
+
+	public class TurnEndedEventArgs : EventArgs
+	{
+		public IPlayer Player { get; set; }
 	}
 
 	public class GameRuleBrokenException : Exception
