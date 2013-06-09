@@ -56,18 +56,26 @@ namespace JeuDuMoulin
 
 		public void MovePawnConstrained(Guid token)
 		{
-			//var availableNodes = Game.Board.Where(x => x.Owner == Control.Player && x.Neighbors.Any(y => y.Owner == null)).ToList();
-			//var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
-			//var availableNeighbors = node.Neighbors.Where(x => x.Owner == null).ToList();
-			//Control.MovePawnConstrained(token, node, availableNeighbors.ElementAt(r.Next(availableNeighbors.Count)));
+			GameCopy.SynchronizeBoardState(Game);
+			var move = GameCopy.MiniMax(this, Control.Opponent);
+			if (move.Removal != null)
+			{
+				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
+			}
+			Control.MovePawnConstrained(token, Game.Board.First(x => x.Id == move.Origin.Id), Game.Board.First(x => x.Id == move.Destination.Id));
+			CurrentAction = StepAction.None;
 		}
 
 		public void MovePawnFreely(Guid token)
 		{
-			//var availableNodes = Game.Board.Where(x => x.Owner == Control.Player).ToList();
-			//var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
-			//var availableNeighbors = Game.Board.Where(x => x.Owner == null).ToList();
-			//Control.MovePawnFreely(token, node, availableNeighbors.ElementAt(r.Next(availableNeighbors.Count)));
+			GameCopy.SynchronizeBoardState(Game);
+			var move = GameCopy.MiniMax(this, Control.Opponent);
+			if (move.Removal != null)
+			{
+				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
+			}
+			Control.MovePawnFreely(token, Game.Board.First(x => x.Id == move.Origin.Id), Game.Board.First(x => x.Id == move.Destination.Id));
+			CurrentAction = StepAction.None;
 		}
 
 		public override string ToString()
@@ -86,6 +94,11 @@ namespace JeuDuMoulin
 		public Node Removal { get; set; }
 
 		public int Valuation { get; set; }
+
+		/// <summary>
+		/// set only if the move was applied
+		/// </summary>
+		public bool SwitchedPhase { get; set; }
 
 		public Move(IPlayer player, IPlayer opponent)
 		{
@@ -147,6 +160,22 @@ namespace JeuDuMoulin
 			if (move.Destination != null)
 			{
 				Board[move.Destination.Id].Owner = move.Player;
+				if (move.Origin == null)	//it's a pawn placement, not a move
+				{
+					if (move.Player == Player)
+					{
+						pawnsToPlace--;
+					}
+					else
+					{
+						opponentPawnsToPlace--;
+					}
+					if (phase == Phase.First && pawnsToPlace <= 0 && opponentPawnsToPlace <= 0)
+					{
+						phase = Phase.Second;
+						move.SwitchedPhase = true;
+					}
+				}
 			}
 			if (move.Removal != null)
 			{
@@ -163,6 +192,21 @@ namespace JeuDuMoulin
 			if (move.Destination != null)
 			{
 				Board[move.Destination.Id].Owner = null;
+				if (move.Origin == null)	//it's a pawn placement, not a move
+				{
+					if (move.Player == Player)
+					{
+						pawnsToPlace++;
+					}
+					else
+					{
+						opponentPawnsToPlace++;
+					}
+					if (move.SwitchedPhase)
+					{
+						phase = Phase.First;
+					}
+				}
 			}
 			if (move.Removal != null)
 			{
@@ -175,27 +219,86 @@ namespace JeuDuMoulin
 			List<Move> availableMoves = new List<Move>();
 			var opponentNodes = Board.Values.Where(x => x.Owner == opponent).ToList();
 
-			//possibilités: une par position libre, plus toutes les suppressions de l'adversaire possibles si la position fait un moulin
-			var availableNodes = Board.Values.Where(x => x.Owner == null);
-			foreach (var node in availableNodes)
+			if (phase == Phase.First)
 			{
-				if (Graph.IsCreatingAMill(node, playing))
+				//possibilités: une par position libre, plus toutes les suppressions de l'adversaire possibles si la position fait un moulin
+				var availableNodes = Board.Values.Where(x => x.Owner == null);
+				foreach (var node in availableNodes)
 				{
-					foreach (var opponentNode in opponentNodes)
+					if (Graph.IsCreatingAMill(node, playing))
 					{
-						availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode });
+						foreach (var opponentNode in opponentNodes)
+						{
+							availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode });
+						}
 					}
+					else
+					{
+						availableMoves.Add(new Move(playing, opponent) { Destination = node });
+					}
+				}
+				return availableMoves;
+			}
+			else //phase2 -> move
+			{
+				//check if the current player has only 3 pawns (=> free move)
+				if ((playing == Player ? pawnsToPlace == 3 : opponentPawnsToPlace == 3))
+				{
+					//possibilités: tous les emplacements libres pour chaque pion, plus tous les pions adverses pour chaque moulin
+					//var availableNodes = Game.Board.Where(x => x.Owner == Control.Player).ToList();
+					//var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
+					//var availableNeighbors = Game.Board.Where(x => x.Owner == null).ToList();
+					var availableNodes = Board.Values.Where(x => x.Owner == playing);
+					foreach (var node in availableNodes)
+					{
+						foreach (var emptyNode in Board.Values.Where(x => x.Owner == null))
+						{
+							if (Graph.IsCreatingAMill(emptyNode, playing, node))
+							{
+								foreach (var opponentNode in opponentNodes)
+								{
+									availableMoves.Add(new Move(playing, opponent) { Origin = node, Destination = emptyNode, Removal = opponentNode });
+								}
+							}
+							else
+							{
+								availableMoves.Add(new Move(playing, opponent) { Origin = node, Destination = emptyNode });
+							}
+						}
+					}
+					return availableMoves;
 				}
 				else
 				{
-					availableMoves.Add(new Move(playing, opponent) { Destination = node });
+					//constrained move
+					//possibilités: chaque emplacement adjacent à un pion + tous les pions adverse pour chaque moulin
+					var availableNodes = Board.Values.Where(x => x.Owner == playing && x.Neighbors.Any(y => y.Owner == null));
+					foreach (var node in availableNodes)
+					{
+						foreach (var neighbor in node.Neighbors.Where(x => x.Owner == null))
+						{
+							if (Graph.IsCreatingAMill(neighbor, playing, node))
+							{
+								foreach (var opponentNode in opponentNodes)
+								{
+									availableMoves.Add(new Move(playing, opponent) { Origin = node, Destination = neighbor, Removal = opponentNode });
+								}
+							}
+							else
+							{
+								availableMoves.Add(new Move(playing, opponent) { Origin = node, Destination = neighbor });
+							}
+						}
+					}
+					return availableMoves;
 				}
 			}
-			return availableMoves;
+
 		}
 
 		private int EvaluateBoardState()
 		{
+			//TODO infinity if game won
 			int result = 0;
 			//each owned node adds 1
 			result += (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner == this));
