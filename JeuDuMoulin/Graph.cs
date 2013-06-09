@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Collections;
 
 namespace JeuDuMoulin
 {
@@ -44,6 +45,11 @@ namespace JeuDuMoulin
 			}
 		}
 
+		public override string ToString()
+		{
+			return string.Format("{0}({1})", Id, Owner == null ? "empty" : Owner.ToString());
+		}
+
 	}
 
 	public static class Graph
@@ -72,7 +78,7 @@ namespace JeuDuMoulin
 			if (resultX == 3)
 			{
 #if DEBUG
-				Logging.Log("Mill on X for {0}", checkForPlayer);
+				//Logging.Log("Mill on X for {0}", checkForPlayer);
 #endif
 				return true;
 			}
@@ -80,7 +86,7 @@ namespace JeuDuMoulin
 			if (resultY == 3)
 			{
 #if DEBUG
-				Logging.Log("Mill on Y for {0}", checkForPlayer);
+				//Logging.Log("Mill on Y for {0}", checkForPlayer);
 #endif
 				return true;
 			}
