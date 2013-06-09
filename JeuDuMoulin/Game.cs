@@ -313,8 +313,109 @@ namespace JeuDuMoulin
 				//if (isCreatingAMill) Logging.Log("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
 #endif
 				game.History.Add(new Step() { Action = StepAction.PlacePawn, Player = this.Player, NodeA = node });
+
+
+				//Logging.Log("{0}", EvaluateBoardState(Player));
+
+
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
+
+			//private int EvaluateBoardState(IPlayer playing)
+			//{
+			//    int result = 0;
+			//    //each owned node adds 1
+			//    result += (int)Math.Round(1.0 * game.Board.Count(x => x.Owner == playing));
+			//    //each node owned by the opponent removes 1
+			//    result -= (int)Math.Round(1.0 * game.Board.Count(x => x.Owner != null && x.Owner != playing));
+			//    //each possible move add 1
+			//    result += (int)Math.Round(0.25 * FindAllMovesForCurrentBoard(playing, playing.Control.Opponent).Count);
+			//    //+1 for each mill -1 for each opponent mill
+			//    int count1;
+			//    int count2;
+			//    CountPlayersMills(playing, playing.Control.Opponent, out count1, out count2);
+			//    result += (int)Math.Round(2.0 * count1);
+			//    result -= (int)Math.Round(2.0 * count2);
+			//    return result;
+			//}
+
+			//class Move
+			//{
+			//    public IPlayer CurrentPlayer { get; set; }
+			//    public IPlayer Opponent { get; set; }
+			//    public Node Origin { get; set; }
+			//    public Node Destination { get; set; }
+			//    public Node Removal { get; set; }
+
+			//    public int Valuation { get; set; }
+
+			//    public Move(IPlayer current, IPlayer opponent)
+			//    {
+			//        this.CurrentPlayer = current;
+			//        this.Opponent = opponent;
+			//    }
+
+			//    public override string ToString()
+			//    {
+			//        StringBuilder sb = new StringBuilder();
+			//        sb.AppendFormat("{0}|", Valuation);
+			//        sb.Append(CurrentPlayer);
+			//        sb.Append(": ");
+			//        if (Origin != null) sb.AppendFormat("From {0} ", Origin);
+			//        if (Destination != null) sb.AppendFormat("To {0} ", Destination);
+			//        if (Removal != null) sb.AppendFormat("+Remove {0}", Removal);
+			//        return sb.ToString();
+			//    }
+			//}
+
+			//private List<Move> FindAllMovesForCurrentBoard(IPlayer playing, IPlayer opponent)
+			//{
+			//    List<Move> availableMoves = new List<Move>();
+			//    var opponentNodes = game.Board.Where(x => x.Owner == opponent).ToList();
+
+			//    //possibilités: une par position libre, plus toutes les suppressions de l'adversaire possibles si la position fait un moulin
+			//    var availableNodes = game.Board.Where(x => x.Owner == null);
+			//    foreach (var node in availableNodes)
+			//    {
+			//        if (Graph.IsCreatingAMill(node, playing))
+			//        {
+			//            foreach (var opponentNode in opponentNodes)
+			//            {
+			//                availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode });
+			//            }
+			//        }
+			//        else
+			//        {
+			//            availableMoves.Add(new Move(playing, opponent) { Destination = node });
+			//        }
+			//    }
+			//    return availableMoves;
+			//}
+
+			//private void CountPlayersMills(IPlayer player1, IPlayer player2, out int count1, out int count2)
+			//{
+			//    //TODO optimiser pour éviter de bruteforce 3 fois de suites
+			//    count1 = 0;
+			//    count2 = 0;
+			//    foreach (var node in game.Board.Where(x => x.Owner == player1))
+			//    {
+			//        if (Graph.IsCreatingAMill(node, player1))
+			//        {
+			//            count1++;
+			//        }
+			//    }
+			//    foreach (var node in game.Board.Where(x => x.Owner == player2))
+			//    {
+			//        if (Graph.IsCreatingAMill(node, player2))
+			//        {
+			//            count2++;
+			//        }
+			//    }
+			//    //la fonction n'est pas optimale et on bruteforce toutes les cases,
+			//    //donc on compte 3 fois les moulins
+			//    count1 = (int)Math.Round(count1 / 3.0);
+			//    count2 = (int)Math.Round(count2 / 3.0);
+			//}
 
 			public void RemoveOpponentPawn(Guid token, Node node)
 			{

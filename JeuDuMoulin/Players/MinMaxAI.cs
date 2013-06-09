@@ -73,7 +73,7 @@ namespace JeuDuMoulin
 			}
 		}
 
-		private List<Move> FindAllMovesForCurrentBoard(IPlayer playing, IPlayer opponent)
+		private List<Move> FindAllMovesForCurrentBoard(IPlayer playing, IPlayer opponent, int depth)
 		{
 			List<Move> availableMoves = new List<Move>();
 			var opponentNodes = BoardCopy.Values.Where(x => x.Owner == opponent).ToList();
@@ -86,12 +86,12 @@ namespace JeuDuMoulin
 				{
 					foreach (var opponentNode in opponentNodes)
 					{
-						availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode });
+						availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode, Depth = depth });
 					}
 				}
 				else
 				{
-					availableMoves.Add(new Move(playing, opponent) { Destination = node });
+					availableMoves.Add(new Move(playing, opponent) { Destination = node, Depth = depth });
 				}
 			}
 			return availableMoves;
@@ -99,7 +99,7 @@ namespace JeuDuMoulin
 
 		private Move MiniMax(TreeNode gameTree, IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
 		{
-			const int MAX_DEPTH = 2;
+			const int MAX_DEPTH = 3;
 			if (move != null) ApplyMoveToBoard(move);
 			if (depth == MAX_DEPTH)
 			{
@@ -113,7 +113,7 @@ namespace JeuDuMoulin
 				if (depth % 2 == 0)
 				{
 					//playing => max
-					var children = FindAllMovesForCurrentBoard(playing, opponent);
+					var children = FindAllMovesForCurrentBoard(playing, opponent, depth);
 					Move max = null;
 					foreach (var item in children)
 					{
@@ -122,17 +122,18 @@ namespace JeuDuMoulin
 						var valuation = MiniMax(child, opponent, playing, item, depth + 1);
 						if (max == null || valuation.Valuation > max.Valuation)
 						{
-							max = valuation;
+							max = item;
 						}
 					}
 					if (move != null) CancelMoveFromBoard(move);
 					gameTree.Move = max;
+					if (move != null) move.Valuation = max.Valuation;
 					return max;
 				}
 				else
 				{
 					//opponent => min
-					var children = FindAllMovesForCurrentBoard(playing, opponent);
+					var children = FindAllMovesForCurrentBoard(playing, opponent, depth);
 					Move min = null;
 					foreach (var item in children)
 					{
@@ -141,11 +142,12 @@ namespace JeuDuMoulin
 						var valuation = MiniMax(child, opponent, playing, item, depth + 1);
 						if (min == null || valuation.Valuation < min.Valuation)
 						{
-							min = valuation;
+							min = item;
 						}
 					}
 					if (move != null) CancelMoveFromBoard(move);
 					gameTree.Move = min;
+					if (move != null) move.Valuation = min.Valuation;
 					return min;
 				}
 			}
@@ -155,11 +157,11 @@ namespace JeuDuMoulin
 		{
 			int result = 0;
 			//each owned node adds 1
-			//result += (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner == playing));
+			result += (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner == playing));
 			//each node owned by the opponent removes 1
-			//result -= (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner != null && x.Owner != playing));
+			result -= (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner != null && x.Owner != playing));
 			//each possible move add 1
-			//result += (int)Math.Round(1.0 * FindAllMovesForCurrentBoard(playing, playing.Control.Opponent).Count);
+			result += (int)Math.Round(0.25 * FindAllMovesForCurrentBoard(playing, playing.Control.Opponent,42).Count);
 			//+1 for each mill -1 for each opponent mill
 			int count1;
 			int count2;
@@ -239,6 +241,7 @@ namespace JeuDuMoulin
 			public Node Destination { get; set; }
 			public Node Removal { get; set; }
 
+			public int Depth { get; set; }
 			public int Valuation { get; set; }
 
 			public Move(IPlayer current, IPlayer opponent)
