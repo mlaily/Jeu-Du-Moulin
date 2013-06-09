@@ -17,6 +17,9 @@ namespace JeuDuMoulin
 
 		Dictionary<int, Node> BoardCopy = new Dictionary<int, Node>();
 
+		Node OpponentToRemoveReminder = null;
+
+
 		public MinMaxAI(string name)
 		{
 			this.Name = name;
@@ -49,7 +52,7 @@ namespace JeuDuMoulin
 			}
 			if (move.Destination != null)
 			{
-				BoardCopy[move.Destination.Id].Owner = move.CurrentPlayer;
+				BoardCopy[move.Destination.Id].Owner = move.Player;
 			}
 			if (move.Removal != null)
 			{
@@ -61,7 +64,7 @@ namespace JeuDuMoulin
 		{
 			if (move.Origin != null)
 			{
-				BoardCopy[move.Origin.Id].Owner = move.CurrentPlayer;
+				BoardCopy[move.Origin.Id].Owner = move.Player;
 			}
 			if (move.Destination != null)
 			{
@@ -73,7 +76,7 @@ namespace JeuDuMoulin
 			}
 		}
 
-		private List<Move> FindAllMovesForCurrentBoard(IPlayer playing, IPlayer opponent, int depth)
+		private List<Move> FindAllMovesForCurrentBoard(IPlayer playing, IPlayer opponent)
 		{
 			List<Move> availableMoves = new List<Move>();
 			var opponentNodes = BoardCopy.Values.Where(x => x.Owner == opponent).ToList();
@@ -86,24 +89,24 @@ namespace JeuDuMoulin
 				{
 					foreach (var opponentNode in opponentNodes)
 					{
-						availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode, Depth = depth });
+						availableMoves.Add(new Move(playing, opponent) { Destination = node, Removal = opponentNode });
 					}
 				}
 				else
 				{
-					availableMoves.Add(new Move(playing, opponent) { Destination = node, Depth = depth });
+					availableMoves.Add(new Move(playing, opponent) { Destination = node });
 				}
 			}
 			return availableMoves;
 		}
 
-		private Move MiniMax(TreeNode gameTree, IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
+		private Move MiniMax(IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
 		{
 			const int MAX_DEPTH = 3;
 			if (move != null) ApplyMoveToBoard(move);
 			if (depth == MAX_DEPTH)
 			{
-				int valuation = EvaluateBoardState(playing);
+				int valuation = EvaluateBoardState();
 				move.Valuation = valuation;
 				CancelMoveFromBoard(move);
 				return move;
@@ -113,59 +116,53 @@ namespace JeuDuMoulin
 				if (depth % 2 == 0)
 				{
 					//playing => max
-					var children = FindAllMovesForCurrentBoard(playing, opponent, depth);
+					var children = FindAllMovesForCurrentBoard(playing, opponent);
 					Move max = null;
 					foreach (var item in children)
 					{
-						var child = new TreeNode(playing);
-						gameTree.Branches.Add(child);
-						var valuation = MiniMax(child, opponent, playing, item, depth + 1);
+						var valuation = MiniMax(opponent, playing, item, depth + 1);
 						if (max == null || valuation.Valuation > max.Valuation)
 						{
 							max = item;
 						}
 					}
 					if (move != null) CancelMoveFromBoard(move);
-					gameTree.Move = max;
 					if (move != null) move.Valuation = max.Valuation;
 					return max;
 				}
 				else
 				{
 					//opponent => min
-					var children = FindAllMovesForCurrentBoard(playing, opponent, depth);
+					var children = FindAllMovesForCurrentBoard(playing, opponent);
 					Move min = null;
 					foreach (var item in children)
 					{
-						var child = new TreeNode(opponent);
-						gameTree.Branches.Add(child);
-						var valuation = MiniMax(child, opponent, playing, item, depth + 1);
+						var valuation = MiniMax(opponent, playing, item, depth + 1);
 						if (min == null || valuation.Valuation < min.Valuation)
 						{
 							min = item;
 						}
 					}
 					if (move != null) CancelMoveFromBoard(move);
-					gameTree.Move = min;
 					if (move != null) move.Valuation = min.Valuation;
 					return min;
 				}
 			}
 		}
 
-		private int EvaluateBoardState(IPlayer playing)
+		private int EvaluateBoardState()
 		{
 			int result = 0;
 			//each owned node adds 1
-			result += (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner == playing));
+			result += (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner == this));
 			//each node owned by the opponent removes 1
-			result -= (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner != null && x.Owner != playing));
+			result -= (int)Math.Round(1.0 * BoardCopy.Values.Count(x => x.Owner != null && x.Owner != this));
 			//each possible move add 1
-			result += (int)Math.Round(0.25 * FindAllMovesForCurrentBoard(playing, playing.Control.Opponent,42).Count);
+			result += (int)Math.Round(0.25 * FindAllMovesForCurrentBoard(this, this.Control.Opponent).Count);
 			//+1 for each mill -1 for each opponent mill
 			int count1;
 			int count2;
-			CountPlayersMills(playing, playing.Control.Opponent, out count1, out count2);
+			CountPlayersMills(this, this.Control.Opponent, out count1, out count2);
 			result += (int)Math.Round(2.0 * count1);
 			result -= (int)Math.Round(2.0 * count2);
 			return result;
@@ -199,17 +196,22 @@ namespace JeuDuMoulin
 		public void PlacePawn(Guid token)
 		{
 			CloneBoardState();
-			var gameTree = new TreeNode(this);
-			var move = MiniMax(gameTree, this, Control.Opponent);
-			//var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
+			var move = MiniMax(this, Control.Opponent);
+			if (move.Removal != null)
+			{
+				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
+			}
 			Control.PlacePawn(token, Game.Board.First(x => x.Id == move.Destination.Id));
 		}
 
 		public void RemoveOpponentPawn(Guid token)
 		{
-			//var availableNodes = Game.Board.Where(x => x.Owner == Control.Opponent).ToList();
-			//var node = availableNodes.ElementAt(r.Next(availableNodes.Count));
-			//Control.RemoveOpponentPawn(token, node);
+			if (OpponentToRemoveReminder == null)
+			{
+				throw new Exception("Inconsistent state!");
+			}
+			Control.RemoveOpponentPawn(token, OpponentToRemoveReminder);
+			OpponentToRemoveReminder = null;
 		}
 
 		public void MovePawnConstrained(Guid token)
@@ -235,18 +237,17 @@ namespace JeuDuMoulin
 
 		class Move
 		{
-			public IPlayer CurrentPlayer { get; set; }
+			public IPlayer Player { get; set; }
 			public IPlayer Opponent { get; set; }
 			public Node Origin { get; set; }
 			public Node Destination { get; set; }
 			public Node Removal { get; set; }
 
-			public int Depth { get; set; }
 			public int Valuation { get; set; }
 
-			public Move(IPlayer current, IPlayer opponent)
+			public Move(IPlayer player, IPlayer opponent)
 			{
-				this.CurrentPlayer = current;
+				this.Player = player;
 				this.Opponent = opponent;
 			}
 
@@ -254,7 +255,7 @@ namespace JeuDuMoulin
 			{
 				StringBuilder sb = new StringBuilder();
 				sb.AppendFormat("{0}|", Valuation);
-				sb.Append(CurrentPlayer);
+				sb.Append(Player);
 				sb.Append(": ");
 				if (Origin != null) sb.AppendFormat("From {0} ", Origin);
 				if (Destination != null) sb.AppendFormat("To {0} ", Destination);
@@ -263,52 +264,5 @@ namespace JeuDuMoulin
 			}
 		}
 
-		class TreeNode
-		{
-			private static int count = 0;
-			public int Id { get; set; }
-			public List<TreeNode> Branches { get; set; }
-			public Move Move { get; set; }
-			public IPlayer Player { get; set; }
-			public TreeNode(IPlayer player)
-			{
-				this.Player = player;
-				this.Id = count;
-				count++;
-				this.Branches = new List<TreeNode>();
-			}
-
-			public string ToGraphviz()
-			{
-				StringBuilder sb = new StringBuilder();
-				if (Move == null)
-				{
-					//terminal
-					sb.AppendFormat("n{0} [label=\"terminal\"];\n", Id);
-				}
-				else
-				{
-					sb.AppendFormat("n{0} [label=\"{1}\"];\n", Id, Move);
-				}
-				foreach (var item in Branches)
-				{
-					sb.AppendFormat("n{0} -- n{1} ;\n", Id, item.Id);
-					sb.Append(item.ToGraphviz());
-				}
-				return sb.ToString();
-			}
-
-			public override string ToString()
-			{
-				if (Move != null)
-				{
-					return Move.Valuation.ToString();
-				}
-				else
-				{
-					return "no move";
-				}
-			}
-		}
 	}
 }
