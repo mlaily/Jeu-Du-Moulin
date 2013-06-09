@@ -332,6 +332,11 @@ namespace JeuDuMoulin
 					throw new NotYourTurnException();
 				}
 
+				if (game.Phase != Phase.Second)
+				{
+					throw new GameRuleBrokenException("You can only move pawns in the second phase!");
+				}
+
 				if (origin.Owner == null || origin.Owner == Opponent)
 				{
 					throw new GameRuleBrokenException("You can only move one of your own pawns!");
@@ -362,6 +367,11 @@ namespace JeuDuMoulin
 				if (!game.TurnHandler.IsMyTurn(token))
 				{
 					throw new NotYourTurnException();
+				}
+
+				if (game.Phase != Phase.Second)
+				{
+					throw new GameRuleBrokenException("You can only move pawns in the second phase!");
 				}
 
 				if (origin.Owner == null || origin.Owner == Opponent)
