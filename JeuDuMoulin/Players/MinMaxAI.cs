@@ -202,6 +202,7 @@ namespace JeuDuMoulin
 				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
 			}
 			Control.PlacePawn(token, Game.Board.First(x => x.Id == move.Destination.Id));
+			CurrentAction = StepAction.None;
 		}
 
 		public void RemoveOpponentPawn(Guid token)
@@ -212,6 +213,7 @@ namespace JeuDuMoulin
 			}
 			Control.RemoveOpponentPawn(token, OpponentToRemoveReminder);
 			OpponentToRemoveReminder = null;
+			CurrentAction = StepAction.None;
 		}
 
 		public void MovePawnConstrained(Guid token)
