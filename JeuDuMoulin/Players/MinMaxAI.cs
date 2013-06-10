@@ -43,7 +43,6 @@ namespace JeuDuMoulin
 				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
 			}
 			Control.PlacePawn(token, Game.Board.First(x => x.Id == move.Destination.Id));
-			CurrentAction = StepAction.None;
 		}
 
 		public void RemoveOpponentPawn(Guid token)
@@ -54,7 +53,6 @@ namespace JeuDuMoulin
 			}
 			Control.RemoveOpponentPawn(token, OpponentToRemoveReminder);
 			OpponentToRemoveReminder = null;
-			CurrentAction = StepAction.None;
 		}
 
 		public void MovePawnConstrained(Guid token)
@@ -66,7 +64,6 @@ namespace JeuDuMoulin
 				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
 			}
 			Control.MovePawnConstrained(token, Game.Board.First(x => x.Id == move.Origin.Id), Game.Board.First(x => x.Id == move.Destination.Id));
-			CurrentAction = StepAction.None;
 		}
 
 		public void MovePawnFreely(Guid token)
@@ -78,7 +75,6 @@ namespace JeuDuMoulin
 				OpponentToRemoveReminder = Game.Board.First(x => x.Id == move.Removal.Id);
 			}
 			Control.MovePawnFreely(token, Game.Board.First(x => x.Id == move.Origin.Id), Game.Board.First(x => x.Id == move.Destination.Id));
-			CurrentAction = StepAction.None;
 		}
 
 		public override string ToString()
@@ -129,6 +125,7 @@ namespace JeuDuMoulin
 		public IPlayer Opponent { get; set; }
 
 		public int MaxDepth { get; private set; }
+		private Random r = new Random(42);
 
 		public Phase phase;
 		public int pawnsToPlace;
@@ -380,6 +377,11 @@ namespace JeuDuMoulin
 						{
 							max = item;
 						}
+					}
+					if (depth == 0)
+					{
+						var equivalents = children.Where(x => x.Valuation == max.Valuation).ToList();
+						max = equivalents.ElementAt(r.Next(equivalents.Count));
 					}
 					if (move != null) CancelMove(move);
 					if (move != null) move.Valuation = max.Valuation;
