@@ -298,7 +298,16 @@ namespace JeuDuMoulin
 
 		private int EvaluateBoardState()
 		{
-			//TODO infinity if game won
+			if (Board.Values.Count(x => x.Owner == Player) < 3)
+			{
+				//lost
+				return int.MinValue;
+			}
+			else if (Board.Values.Count(x => x.Owner == Opponent) < 3)
+			{
+				//won
+				return int.MaxValue;
+			}
 			int result = 0;
 			//each owned node adds 1
 			result += (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner == this));
@@ -307,37 +316,34 @@ namespace JeuDuMoulin
 			//each possible move add 1
 			result += (int)Math.Round(0.25 * FindPossibleMoves(Player, Opponent).Count);
 			//+1 for each mill -1 for each opponent mill
-			int count1;
-			int count2;
-			CountPlayersMills(Player, Opponent, out count1, out count2);
+			int count1 = CountMillsForPlayer(Player);
+			int count2 = CountMillsForPlayer(Opponent);
 			result += (int)Math.Round(2.0 * count1);
 			result -= (int)Math.Round(2.0 * count2);
 			return result;
 		}
 
-		private void CountPlayersMills(IPlayer player1, IPlayer player2, out int count1, out int count2)
+		private int CountMillsForPlayer(IPlayer player)
 		{
-			//TODO optimiser pour éviter de bruteforce 3 fois de suites
-			count1 = 0;
-			count2 = 0;
-			foreach (var node in Board.Values.Where(x => x.Owner == player1))
+			int count = 0;
+			for (int j = 1; j <= 100; j *= 10)
 			{
-				if (Graph.IsCreatingAMill(node, player1))
+				for (int i = 1; i <= 8; i += 2)
 				{
-					count1++;
+					if (Board[i * j].Owner == player && Board[(i + 1) * j].Owner == player && Board[((i + 2) % 8) * j].Owner == player)
+					{
+						count++;
+					}
 				}
 			}
-			foreach (var node in Board.Values.Where(x => x.Owner == player2))
+			for (int i = 2; i <= 8; i += 2)
 			{
-				if (Graph.IsCreatingAMill(node, player2))
+				if (Board[i * 100].Owner == player && Board[i * 10].Owner == player && Board[i].Owner == player)
 				{
-					count2++;
+					count++;
 				}
 			}
-			//la fonction n'est pas optimale et on bruteforce toutes les cases,
-			//donc on compte 3 fois les moulins
-			count1 = (int)Math.Round(count1 / 3.0);
-			count2 = (int)Math.Round(count2 / 3.0);
+			return count;
 		}
 
 		public Move MiniMax(IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
@@ -357,6 +363,10 @@ namespace JeuDuMoulin
 				{
 					//playing => max
 					var children = FindPossibleMoves(playing, opponent);
+					if (children.Count == 0)
+					{
+						throw new Exception("TODO");
+					}
 					Move max = null;
 					foreach (var item in children)
 					{
@@ -374,6 +384,10 @@ namespace JeuDuMoulin
 				{
 					//opponent => min
 					var children = FindPossibleMoves(playing, opponent);
+					if (children.Count == 0)
+					{
+						throw new Exception("TODO");
+					}
 					Move min = null;
 					foreach (var item in children)
 					{

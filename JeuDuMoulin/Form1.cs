@@ -12,9 +12,7 @@ namespace JeuDuMoulin
 	public partial class Form1 : Form
 	{
 
-		Game game;
-		IPlayer player1;
-		IPlayer player2;
+
 
 		public Form1()
 		{
@@ -24,6 +22,22 @@ namespace JeuDuMoulin
 
 		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
+			for (int i = this.Controls.Count-1; i > 0; i--)
+			{
+				if (this.Controls[i] is Plateau)
+				{
+					((Plateau)this.Controls[i]).Hide();
+					this.Controls.RemoveAt(i);
+				}
+			}
+			StartHumanVsAI();
+		}
+
+		private void StartHumanVsAI()
+		{
+			Game game;
+			IPlayer player1;
+			IPlayer player2;
 			//12 42
 			var plateau1 = new Human() { Location = new Point(12, 42), Size = new Size(500, 500) };
 			this.Controls.Add(plateau1);
