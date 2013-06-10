@@ -15,20 +15,23 @@ namespace JeuDuMoulin
 
 		public string Name { get; private set; }
 
+		public int MaxDepth { get; private set; }
+
 		private GameCopy GameCopy;
 
 		Node OpponentToRemoveReminder = null;
 
-		public MinMaxAI(string name)
+		public MinMaxAI(string name, int maxDepth)
 		{
 			this.Name = name;
+			this.MaxDepth = maxDepth;
 		}
 
 		public void Initialize(Game game)
 		{
 			this.Game = game;
 			this.Control = new Game.PlayerControl(this);
-			GameCopy = new GameCopy(this, this.Control.Opponent);
+			GameCopy = new GameCopy(this, this.Control.Opponent, MaxDepth);
 		}
 
 		public void PlacePawn(Guid token)
@@ -125,12 +128,15 @@ namespace JeuDuMoulin
 		public IPlayer Player { get; set; }
 		public IPlayer Opponent { get; set; }
 
+		public int MaxDepth { get; private set; }
+
 		public Phase phase;
 		public int pawnsToPlace;
 		public int opponentPawnsToPlace;
 
-		public GameCopy(IPlayer player, IPlayer opponent)
+		public GameCopy(IPlayer player, IPlayer opponent, int maxDepth)
 		{
+			this.MaxDepth = maxDepth;
 			this.Player = player;
 			this.Opponent = opponent;
 			var newBoard = Graph.CreateGraph();
@@ -348,9 +354,8 @@ namespace JeuDuMoulin
 
 		public Move MiniMax(IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
 		{
-			const int MAX_DEPTH = 4;
 			if (move != null) ApplyMove(move);
-			if (depth == MAX_DEPTH)
+			if (depth == MaxDepth)
 			{
 				int valuation = EvaluateBoardState();
 				move.Valuation = valuation;
