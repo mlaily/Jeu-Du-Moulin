@@ -348,7 +348,7 @@ namespace JeuDuMoulin
 
 		public Move MiniMax(IPlayer playing, IPlayer opponent, Move move = null, int depth = 0)
 		{
-			const int MAX_DEPTH = 3;
+			const int MAX_DEPTH = 4;
 			if (move != null) ApplyMove(move);
 			if (depth == MAX_DEPTH)
 			{
@@ -363,11 +363,11 @@ namespace JeuDuMoulin
 				{
 					//playing => max
 					var children = FindPossibleMoves(playing, opponent);
+					Move max = null;
 					if (children.Count == 0)
 					{
-						throw new Exception("TODO");
+						max = new Move(playing, opponent) { Valuation = int.MinValue };
 					}
-					Move max = null;
 					foreach (var item in children)
 					{
 						var valuation = MiniMax(opponent, playing, item, depth + 1);
@@ -384,11 +384,11 @@ namespace JeuDuMoulin
 				{
 					//opponent => min
 					var children = FindPossibleMoves(playing, opponent);
+					Move min = null;
 					if (children.Count == 0)
 					{
-						throw new Exception("TODO");
+						min = new Move(playing, opponent) { Valuation = int.MaxValue };
 					}
-					Move min = null;
 					foreach (var item in children)
 					{
 						var valuation = MiniMax(opponent, playing, item, depth + 1);
