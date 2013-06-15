@@ -89,7 +89,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="app.config" />
     <None Include="Diagrams\graph+node.cd" />
     <None Include="Diagrams\MiniMaxAI.cd" />
     <None Include="Diagrams\IPlayer implementations.cd" />
