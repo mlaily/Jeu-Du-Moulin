@@ -55,7 +55,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameUtilities.cs" />
     <Compile Include="Graph.cs" />
-    <Compile Include="Players\MinMaxAI.cs" />
+    <Compile Include="Players\MiniMaxAI.cs" />
     <Compile Include="Players\Human.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -87,7 +87,13 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
+    <None Include="Diagrams\graph+node.cd" />
+    <None Include="Diagrams\MiniMaxAI.cd" />
+    <None Include="Diagrams\IPlayer implementations.cd" />
+    <None Include="Diagrams\global diagram.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="JeuDuMoulin.RandomAI">
+    <Position X="6" Y="0.75" Width="2" />
+    <Members>
+      <Property Name="Name" Hidden="true" />
+      <Method Name="RandomAI" Hidden="true" />
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAEAAAAAUAEAAAAAAQIAAgEAAAAAAABAAAQAAA=</HashCode>
+      <FileName>Players\RandomAI.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="JeuDuMoulin.Human">
+    <Position X="3.5" Y="0.75" Width="2" />
+    <Members>
+      <Method Name="Human" Hidden="true" />
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAEAABAAUAEAAAAAAAKAAAEAAAAAgAAAAAQAAA=</HashCode>
+      <FileName>Players\Human.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="JeuDuMoulin.MiniMaxAI">
+    <Position X="8.5" Y="0.75" Width="2.25" />
+    <Members>
+      <Method Name="MiniMaxAI" Hidden="true" />
+      <Property Name="Name" Hidden="true" />
+      <Field Name="OpponentToRemoveReminder" Hidden="true" />
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AgAEAAAEAAAAAUAEAAAAACQIAAgEIAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Players\MiniMaxAI.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="JeuDuMoulin.IPlayer">
+    <Position X="1" Y="0.75" Width="2" />
+    <Members>
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAEAAAAAUAEAAAAAAAIAAgEAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Players\IPlayer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="JeuDuMoulin.GameCopy">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <Members>
+      <Method Name="GameCopy" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAIAAIAAAECQAAAgAABIACAAAAAACAAAAAIFASAAAAA=</HashCode>
+      <FileName>Players\MiniMaxAI.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="JeuDuMoulin.MiniMaxAI">
+    <Position X="3.75" Y="0.5" Width="2" />
+    <Members>
+      <Method Name="MiniMaxAI" Hidden="true" />
+      <Property Name="Name" Hidden="true" />
+      <Field Name="OpponentToRemoveReminder" Hidden="true" />
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AgAEAAAEAAAAAUAEAAAAACQIAAgEIAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Players\MiniMaxAI.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="GameCopy" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
