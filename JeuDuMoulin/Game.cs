@@ -17,6 +17,7 @@ namespace JeuDuMoulin
 		public TurnHandler TurnHandler { get; private set; }
 		public List<Step> History { get; private set; }
 		public TimeSpan ArtificialWait { get; set; }
+		public bool CancelGame { get; set; }
 
 		public IPlayer Winner { get; private set; }
 		public IPlayer Loser { get; private set; }
@@ -57,7 +58,7 @@ namespace JeuDuMoulin
 		private void GameLoop()
 		{
 			Phase = JeuDuMoulin.Phase.First;
-			while ((Player1.Control.PawnsToPlace > 0 || Player2.Control.PawnsToPlace > 0))
+			while (!CancelGame && (Player1.Control.PawnsToPlace > 0 || Player2.Control.PawnsToPlace > 0))
 			{
 				//player1
 				Player1.CurrentAction = StepAction.PlacePawn;
@@ -86,7 +87,7 @@ namespace JeuDuMoulin
 			List<List<Tuple<int, IPlayer>>> BoardHistory = new List<List<Tuple<int, IPlayer>>>();
 			//activated when both players have only 3 pawns left
 			int finalCountDown = 10;
-			while (true)
+			while (!CancelGame)
 			{
 				if (finalCountDown <= 0)
 				{
@@ -141,6 +142,11 @@ namespace JeuDuMoulin
 				{
 					finalCountDown--;
 				}
+			}
+			if (CancelGame)
+			{
+				Logging.Log("Game cancelled.", CancelGame);
+				return;
 			}
 			if (Winner == null)
 			{
