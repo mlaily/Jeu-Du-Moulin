@@ -125,7 +125,7 @@ namespace JeuDuMoulin
 		public IPlayer Opponent { get; set; }
 
 		public int MaxDepth { get; private set; }
-		private Random r = new Random(42);
+		private Random r = new Random();
 
 		public Phase phase;
 		public int pawnsToPlace;
@@ -313,16 +313,17 @@ namespace JeuDuMoulin
 			}
 			int result = 0;
 			//each owned node adds 1
-			result += (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner == this));
+			result += (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner == Player));
 			//each node owned by the opponent removes 1
-			result -= (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner != null && x.Owner != this));
+			result -= (int)Math.Round(1.0 * Board.Values.Count(x => x.Owner == Opponent));
 			//each possible move add 1
 			result += (int)Math.Round(0.25 * FindPossibleMoves(Player, Opponent).Count);
+			result -= (int)Math.Round(0.25 * FindPossibleMoves(Opponent, Player).Count);
 			//+1 for each mill -1 for each opponent mill
 			int count1 = CountMillsForPlayer(Player);
 			int count2 = CountMillsForPlayer(Opponent);
-			result += (int)Math.Round(2.0 * count1);
-			result -= (int)Math.Round(2.0 * count2);
+			result += (int)Math.Round(1.0 * count1);
+			result -= (int)Math.Round(1.0 * count2);
 			return result;
 		}
 

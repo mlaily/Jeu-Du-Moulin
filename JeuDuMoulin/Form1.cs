@@ -28,8 +28,8 @@ namespace JeuDuMoulin
 					this.Controls.RemoveAt(i);
 				}
 			}
-			StartAIVsAI();
-			//StartHumanVsAI();
+			//StartAIVsAI();
+			StartHumanVsAI();
 		}
 
 		private void StartHumanVsAI()
