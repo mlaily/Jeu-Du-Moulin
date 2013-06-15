@@ -306,7 +306,6 @@ namespace JeuDuMoulin
 				PawnCount++;
 #if DEBUG
 				Logging.Log("{0} placed a pawn on {1}", this.Player, node.Id);
-				//if (isCreatingAMill) Logging.Log("And removed opponent pawn in {0} after creating a mill.", opponentPawnToRemove.Id);
 #endif
 				game.History.Add(new Step() { Action = StepAction.PlacePawn, Player = this.Player, NodeA = node });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
@@ -326,6 +325,10 @@ namespace JeuDuMoulin
 
 				node.Owner = null;
 				Opponent.Control.PawnCount--;
+
+#if DEBUG
+				Logging.Log("{0} removed the opponent pawn from {1}", this.Player, node.Id);
+#endif
 
 				game.History.Add(new Step() { Action = StepAction.RemoveOpponentPawn, Player = this.Player, NodeA = node });
 				game.TurnHandler.EndTurn(token, false);
@@ -364,6 +367,10 @@ namespace JeuDuMoulin
 				origin.Owner = null;
 				destination.Owner = Player;
 
+#if DEBUG
+				Logging.Log("{0} moved a pawn from {1} to {2}", this.Player, origin.Id, destination.Id);
+#endif
+
 				game.History.Add(new Step() { Action = StepAction.MovePawnConstrained, Player = this.Player, NodeA = origin, NodeB = destination });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
 			}
@@ -395,6 +402,10 @@ namespace JeuDuMoulin
 				//ok
 				origin.Owner = null;
 				destination.Owner = Player;
+
+#if DEBUG
+				Logging.Log("{0} moved a pawn from {1} to {2}", this.Player, origin.Id, destination.Id);
+#endif
 
 				game.History.Add(new Step() { Action = StepAction.MovePawnFreely, Player = this.Player, NodeA = origin, NodeB = destination });
 				game.TurnHandler.EndTurn(token, isCreatingAMill);
