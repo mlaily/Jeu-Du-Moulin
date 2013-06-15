@@ -14,6 +14,38 @@ namespace JeuDuMoulin
 
 		private Game currentGame = null;
 
+		private int MaxDepth
+		{
+			get
+			{
+				int casted;
+				if (int.TryParse(txtMaxDepth.Text, out casted))
+				{
+					return casted;
+				}
+				else
+				{
+					return 3;
+				}
+			}
+		}
+
+		private int Delay
+		{
+			get
+			{
+				int casted;
+				if (int.TryParse(txtDelay.Text, out casted))
+				{
+					return casted;
+				}
+				else
+				{
+					return 500;
+				}
+			}
+		}
+
 		public Form1()
 		{
 			InitializeComponent();
@@ -52,7 +84,7 @@ namespace JeuDuMoulin
 			var plateau2 = new Plateau() { Location = new Point(700, 42), Size = new Size(500, 500) };
 			this.Controls.Add(plateau2);
 			player1 = plateau1;
-			player2 = new MinMaxAI("AI", 3);
+			player2 = new MinMaxAI("AI", this.MaxDepth);
 			game = new Game(player1, player2);
 			//game.ArtificialWait = TimeSpan.FromMilliseconds(200);
 			plateau2.Game = game;
@@ -75,10 +107,10 @@ namespace JeuDuMoulin
 			//700 42
 			var plateau2 = new Plateau() { Location = new Point(700, 42), Size = new Size(500, 500) };
 			this.Controls.Add(plateau2);
-			player1 = new MinMaxAI("AI1", 3);
-			player2 = new MinMaxAI("AI2", 3);
+			player1 = new MinMaxAI("AI1", this.MaxDepth);
+			player2 = new MinMaxAI("AI2", this.MaxDepth);
 			game = new Game(player1, player2);
-			game.ArtificialWait = TimeSpan.FromMilliseconds(500);
+			game.ArtificialWait = TimeSpan.FromMilliseconds(this.Delay);
 			plateau1.Game = game;
 			plateau1.Player = player1;
 			plateau1.Invalidate();
