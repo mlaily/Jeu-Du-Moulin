@@ -13,7 +13,7 @@ namespace JeuDuMoulin
 		{
 			if (TextBoxLog != null)
 			{
-				TextBoxLog.Invoke((Action)(() => TextBoxLog.AppendText(string.Format(format, args) + "\n")));
+				TextBoxLog.Invoke((Action)(() => TextBoxLog.AppendText(Environment.NewLine + string.Format(format, args))));
 			}
 			else
 			{
