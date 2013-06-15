@@ -38,6 +38,12 @@
 			this.aiaibtn = new System.Windows.Forms.ToolStripButton();
 			this.labelVS = new System.Windows.Forms.Label();
 			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+			this.txtDelay = new System.Windows.Forms.ToolStripTextBox();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
+			this.txtMaxDepth = new System.Windows.Forms.ToolStripTextBox();
 			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -49,7 +55,13 @@
             this.toolStripSeparator1,
             this.humanaibtn,
             this.toolStripSeparator2,
-            this.aiaibtn});
+            this.aiaibtn,
+            this.toolStripSeparator3,
+            this.toolStripLabel2,
+            this.txtDelay,
+            this.toolStripSeparator4,
+            this.toolStripLabel3,
+            this.txtMaxDepth});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip1.Name = "toolStrip1";
 			this.toolStrip1.Size = new System.Drawing.Size(1218, 25);
@@ -124,6 +136,40 @@
 			this.textBox1.Size = new System.Drawing.Size(1194, 154);
 			this.textBox1.TabIndex = 4;
 			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripLabel2
+			// 
+			this.toolStripLabel2.Name = "toolStripLabel2";
+			this.toolStripLabel2.Size = new System.Drawing.Size(39, 22);
+			this.toolStripLabel2.Text = "Delay:";
+			// 
+			// txtDelay
+			// 
+			this.txtDelay.Name = "txtDelay";
+			this.txtDelay.Size = new System.Drawing.Size(100, 25);
+			this.txtDelay.Text = "500";
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripLabel3
+			// 
+			this.toolStripLabel3.Name = "toolStripLabel3";
+			this.toolStripLabel3.Size = new System.Drawing.Size(90, 22);
+			this.toolStripLabel3.Text = "MiniMax depth:";
+			// 
+			// txtMaxDepth
+			// 
+			this.txtMaxDepth.Name = "txtMaxDepth";
+			this.txtMaxDepth.Size = new System.Drawing.Size(100, 25);
+			this.txtMaxDepth.Text = "3";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -155,6 +201,12 @@
 		private System.Windows.Forms.ToolStripButton humanaibtn;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripButton aiaibtn;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+		private System.Windows.Forms.ToolStripTextBox txtDelay;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripLabel toolStripLabel3;
+		private System.Windows.Forms.ToolStripTextBox txtMaxDepth;
 	}
 }
 
