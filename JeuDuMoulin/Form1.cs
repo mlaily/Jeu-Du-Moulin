@@ -84,7 +84,7 @@ namespace JeuDuMoulin
 			var plateau2 = new Plateau() { Location = new Point(700, 42), Size = new Size(500, 500) };
 			this.Controls.Add(plateau2);
 			player1 = plateau1;
-			player2 = new MinMaxAI("AI", this.MaxDepth);
+			player2 = new MiniMaxAI("AI", this.MaxDepth);
 			game = new Game(player1, player2);
 			//game.ArtificialWait = TimeSpan.FromMilliseconds(200);
 			plateau2.Game = game;
@@ -107,8 +107,8 @@ namespace JeuDuMoulin
 			//700 42
 			var plateau2 = new Plateau() { Location = new Point(700, 42), Size = new Size(500, 500) };
 			this.Controls.Add(plateau2);
-			player1 = new MinMaxAI("AI1", this.MaxDepth);
-			player2 = new MinMaxAI("AI2", this.MaxDepth);
+			player1 = new MiniMaxAI("AI1", this.MaxDepth);
+			player2 = new MiniMaxAI("AI2", this.MaxDepth);
 			game = new Game(player1, player2);
 			game.ArtificialWait = TimeSpan.FromMilliseconds(this.Delay);
 			plateau1.Game = game;

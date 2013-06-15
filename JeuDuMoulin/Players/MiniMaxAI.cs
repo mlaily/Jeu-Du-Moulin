@@ -5,7 +5,7 @@ using System.Text;
 
 namespace JeuDuMoulin
 {
-	class MinMaxAI : IPlayer
+	class MiniMaxAI : IPlayer
 	{
 		public Game Game { get; private set; }
 
@@ -21,7 +21,7 @@ namespace JeuDuMoulin
 
 		Node OpponentToRemoveReminder = null;
 
-		public MinMaxAI(string name, int maxDepth)
+		public MiniMaxAI(string name, int maxDepth)
 		{
 			this.Name = name;
 			this.MaxDepth = maxDepth;
