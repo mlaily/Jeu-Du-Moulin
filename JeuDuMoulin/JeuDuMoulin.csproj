@@ -53,12 +53,13 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
+    <Compile Include="GameUtilities.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Players\MinMaxAI.cs" />
     <Compile Include="Players\Human.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IPlayer.cs" />
+    <Compile Include="Players\IPlayer.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Plateau.cs">
       <SubType>UserControl</SubType>
